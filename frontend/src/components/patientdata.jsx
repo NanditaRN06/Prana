@@ -207,22 +207,92 @@ const ActionButton = ({ onClick, icon, label, color }) => (
     </button>
 );
 
+
 export function Update() {
     const location = useLocation();
     const navigate = useNavigate();
     const patientData = location.state || {};
 
-    // Prefilling existing data
+    const parseTreatments = (treatments = []) => {
+        if (!Array.isArray(treatments)) return [];
+        return treatments.map(t => {
+            const parts = t.split('-');
+            if (parts.length < 4) return { name: t, dose: "", schedule: [], days: "" };
+            let name = parts[0] || "";
+            let dose = parts[1] || "";
+            let scheduleRaw = parts[2] || "[]";
+            let days = parts[3] || "";
+            let schedule = scheduleRaw.slice(1, -1).split(',').filter(s => s.trim() !== "");
+            return { name, dose, schedule, days };
+        });
+    };
+
     const [formData, setFormData] = useState({
-        ...patientData,
-        examdate: patientData.examdate ? new Date(patientData.examdate).toISOString().slice(0, 16) : ""
+        name: patientData.name || "",
+        age: patientData.age || "",
+        examdate: patientData.examdate ? new Date(patientData.examdate).toISOString().slice(0, 16) : "",
+        allergies: patientData.allergies?.toLowerCase() === "yes" ? "yes" : "no",
+        allergyDetails: patientData.allergyDetails || "",
+        chiefComplaints: patientData.chiefComplaints || "",
+        examination: patientData.examination || "",
+        otherDetails: patientData.otherDetails || ""
     });
+
+    const [comorbidities, setComorbidities] = useState(patientData.comorbidities || []);
+    const [medicines, setMedicines] = useState(parseTreatments(patientData.treatments));
+    const [selectedInvestigations, setSelectedInvestigations] = useState(patientData.investigations || []);
+    const [showMedicines, setShowMedicines] = useState(medicines.length > 0);
+    const [showOtherTreatment, setShowOtherTreatment] = useState(!!patientData.otherDetails);
+
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setFormData(prev => ({ ...prev, [name]: value }));
+    };
+
+    const handleComorbidityChange = (value) => {
+        setComorbidities(prev =>
+            prev.includes(value) ? prev.filter(c => c !== value) : [...prev, value]
+        );
+    };
+
+    const addMedicine = () => {
+        setMedicines([...medicines, { name: "", dose: "", schedule: [], days: "" }]);
+    };
+
+    const updateMedicine = (index, field, value) => {
+        const updated = [...medicines];
+        if (field === "schedule") {
+            const current = updated[index].schedule;
+            updated[index].schedule = current.includes(value)
+                ? current.filter(s => s !== value)
+                : [...current, value];
+        } else {
+            updated[index][field] = value;
+        }
+        setMedicines(updated);
+    };
+
+    const removeMedicine = (index) => {
+        setMedicines(medicines.filter((_, i) => i !== index));
+    };
 
     const handleSubmit = (e) => {
         e.preventDefault();
 
+        const medicinesFormatted = medicines.map(m =>
+            `${m.name}-${m.dose}-[${m.schedule.join(",")}]-${m.days}`
+        );
+
+        const submissionData = {
+            ...formData,
+            comorbidities,
+            treatments: medicinesFormatted,
+            investigations: selectedInvestigations.length > 0 ? selectedInvestigations : ["None"],
+            allergies: formData.allergies === "yes" ? "Yes" : "No"
+        };
+
         const loadToast = toast.loading("Updating patient information...");
-        axios.put(`http://localhost:9000/update/${patientData.name}`, formData, { withCredentials: true })
+        axios.put(`http://localhost:9000/update/${patientData.name}`, submissionData, { withCredentials: true })
             .then(() => {
                 toast.success("Patient information updated.", { id: loadToast });
                 navigate(`/patient/${formData.name}`);
@@ -231,28 +301,140 @@ export function Update() {
     };
 
     return (
-        <div className="max-w-2xl mx-auto py-10">
+        <div className="max-w-4xl mx-auto py-6">
             <div className="bg-white rounded-[2.5rem] shadow-2xl shadow-slate-200 border border-slate-100 overflow-hidden">
                 <div className="bg-blue-600 px-10 py-12 text-white">
-                    <h1 className="text-xl font-black flex items-center gap-5">
+                    <h1 className="text-3xl font-black flex items-center gap-5">
                         <button onClick={() => navigate(-1)} className="hover:scale-110 transition-transform bg-white/10 p-2 rounded-xl"><FaArrowLeft size={14} /></button>
-                        Update Details
+                        Edit Clinical Record
                     </h1>
+                    <p className="text-blue-100 font-medium mt-2">Modify the existing patient documentation.</p>
                 </div>
 
-                <form className="p-10 space-y-8" onSubmit={handleSubmit}>
-                    <div className="grid grid-cols-2 gap-6">
-                        <Input label="Patient Name" value={formData.name} onChange={(v) => setFormData({ ...formData, name: v })} />
-                        <Input label="Age" type="number" value={formData.age} onChange={(v) => setFormData({ ...formData, age: v })} />
-                    </div>
-                    <Input label="Examination Date" type="datetime-local" value={formData.examdate} onChange={(v) => setFormData({ ...formData, examdate: v })} />
+                <form className="p-10 space-y-12" onSubmit={handleSubmit}>
+                    {/* General Information */}
+                    <section className="space-y-6">
+                        <SectionHeader title="General Information" />
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <FormGroup label="Patient Full Name">
+                                <input type="text" name="name" className="input-field" value={formData.name} onChange={handleInputChange} required />
+                            </FormGroup>
+                            <FormGroup label="Age (Years)">
+                                <input type="number" name="age" className="input-field" value={formData.age} onChange={handleInputChange} required />
+                            </FormGroup>
+                            <FormGroup label="Examination Date">
+                                <input type="datetime-local" name="examdate" className="input-field" value={formData.examdate} onChange={handleInputChange} required />
+                            </FormGroup>
+                        </div>
+                    </section>
 
-                    <Textarea label="Chief Complaints" value={formData.chiefComplaints} onChange={(v) => setFormData({ ...formData, chiefComplaints: v })} />
-                    <Textarea label="Examination Findings" value={formData.examination} onChange={(v) => setFormData({ ...formData, examination: v })} />
+                    {/* Medical History */}
+                    <section className="space-y-6">
+                        <SectionHeader title="Medical History" />
+                        <FormGroup label="Co-morbidities">
+                            <div className="flex flex-wrap gap-3">
+                                {["Hypertension", "Diabetes", "Thyroid Disease", "IHD", "Old Stroke", "Others", "None"].map(c => (
+                                    <label key={c} className={`chip ${comorbidities.includes(c) ? 'active' : ''}`}>
+                                        <input type="checkbox" className="hidden" checked={comorbidities.includes(c)} onChange={() => handleComorbidityChange(c)} />
+                                        <span>{c}</span>
+                                    </label>
+                                ))}
+                            </div>
+                        </FormGroup>
+
+                        <FormGroup label="Allergy Status">
+                            <div className="flex gap-4">
+                                {["yes", "no"].map(opt => (
+                                    <label key={opt} className={`radio-box ${formData.allergies === opt ? 'active' : ''}`}>
+                                        <input type="radio" name="allergies" value={opt} className="hidden" checked={formData.allergies === opt} onChange={handleInputChange} />
+                                        <span className="capitalize">{opt}</span>
+                                    </label>
+                                ))}
+                            </div>
+                            {formData.allergies === "yes" && (
+                                <textarea name="allergyDetails" className="textarea-field mt-4" placeholder="Document sensitivities..." value={formData.allergyDetails} onChange={handleInputChange} required />
+                            )}
+                        </FormGroup>
+                    </section>
+
+                    {/* Clinical Details */}
+                    <section className="space-y-6">
+                        <SectionHeader title="Clinical Details" />
+                        <div className="grid grid-cols-1 gap-8">
+                            <FormGroup label="Principal Complaints">
+                                <textarea name="chiefComplaints" className="textarea-field min-h-[120px]" value={formData.chiefComplaints} onChange={handleInputChange} required />
+                            </FormGroup>
+                            <FormGroup label="Examination Findings">
+                                <textarea name="examination" className="textarea-field min-h-[120px]" value={formData.examination} onChange={handleInputChange} required />
+                            </FormGroup>
+                        </div>
+                    </section>
+
+                    {/* Treatment Plan */}
+                    <section className="space-y-6">
+                        <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+                            <SectionHeader title="Treatment Plan" />
+                            <div className="flex gap-3">
+                                <button type="button" onClick={() => setShowMedicines(!showMedicines)} className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${showMedicines ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-500'}`}>Medicines</button>
+                                <button type="button" onClick={() => setShowOtherTreatment(!showOtherTreatment)} className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${showOtherTreatment ? 'bg-slate-800 text-white' : 'bg-slate-100 text-slate-500'}`}>Other Notes</button>
+                            </div>
+                        </div>
+
+                        {showMedicines && (
+                            <div className="space-y-6 bg-slate-50 p-8 rounded-[2rem] border border-slate-100">
+                                {medicines.map((med, idx) => (
+                                    <div key={idx} className="bg-white p-6 rounded-2xl shadow-sm space-y-5 border border-slate-100 relative">
+                                        <button type="button" onClick={() => removeMedicine(idx)} className="absolute top-4 right-4 text-slate-300 hover:text-red-500">✕</button>
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div className="space-y-1">
+                                                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Name</label>
+                                                <input type="text" className="w-full p-3 bg-slate-50 rounded-xl font-bold" value={med.name} onChange={(e) => updateMedicine(idx, "name", e.target.value)} required />
+                                            </div>
+                                            <div className="space-y-1">
+                                                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Dosage</label>
+                                                <input type="text" className="w-full p-3 bg-slate-50 rounded-xl font-bold" value={med.dose} onChange={(e) => updateMedicine(idx, "dose", e.target.value)} required />
+                                            </div>
+                                        </div>
+                                        <div className="flex flex-wrap items-end gap-2">
+                                            <div className="flex-1 space-y-1">
+                                                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Schedule</label>
+                                                <div className="flex flex-wrap gap-2">
+                                                    {["Morning", "Afternoon", "Evening", "Night"].map(t => (
+                                                        <button key={t} type="button" onClick={() => updateMedicine(idx, "schedule", t)} className={`px-4 py-2 rounded-lg text-[10px] font-black tracking-widest transition-all ${med.schedule.includes(t) ? 'bg-blue-600 text-white shadow-md' : 'bg-white border-2 border-slate-100 text-slate-400'}`}>{t}</button>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                            <div className="space-y-1">
+                                                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Days</label>
+                                                <input type="number" className="w-20 p-2 bg-slate-50 rounded-xl font-bold text-center" value={med.days} onChange={(e) => updateMedicine(idx, "days", e.target.value)} required />
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                                <button type="button" onClick={addMedicine} className="w-full py-4 border-2 border-dashed border-slate-200 rounded-2xl text-slate-400 font-bold hover:border-blue-300 hover:text-blue-600 hover:bg-white transition-all">+ Add Medication</button>
+                            </div>
+                        )}
+
+                        {showOtherTreatment && (
+                            <textarea name="otherDetails" className="textarea-field min-h-[100px]" placeholder="Supplemental treatment notes..." value={formData.otherDetails} onChange={handleInputChange} />
+                        )}
+                    </section>
+
+                    {/* Investigations */}
+                    <section className="space-y-6">
+                        <SectionHeader title="Investigations" />
+                        <FormGroup label="Recommended/Requested Tests">
+                            <div className="flex flex-wrap gap-2 p-5 bg-slate-50 rounded-[2rem] border border-slate-100">
+                                {["CBC", "HBA1C", "FBS", "PPBS", "MRI", "CT", "EEG", "ENMG", "TSH", "USG Abdomen"].map(inv => (
+                                    <button key={inv} type="button" onClick={() => setSelectedInvestigations(prev => prev.includes(inv) ? prev.filter(x => x !== inv) : [...prev, inv])} className={`px-4 py-2 rounded-xl font-bold text-xs transition-all ${selectedInvestigations.includes(inv) ? 'bg-slate-900 text-white' : 'bg-white border border-slate-100 text-slate-600'}`}>{inv}</button>
+                                ))}
+                            </div>
+                        </FormGroup>
+                    </section>
 
                     <div className="pt-8 flex gap-5">
-                        <button type="submit" className="flex-1 py-4 bg-blue-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg shadow-blue-100 hover:bg-blue-700 transition-all border-b-4 border-blue-800">Update Record</button>
-                        <button type="button" onClick={() => navigate(-1)} className="flex-1 py-4 bg-slate-100 text-slate-500 rounded-2xl font-bold text-xs hover:bg-slate-200 transition-all border-b-4 border-slate-200">Cancel</button>
+                        <button type="submit" className="flex-1 py-4 bg-blue-600 text-white rounded-[1.25rem] font-black text-xs uppercase tracking-widest shadow-xl hover:bg-blue-700 transition-all border-b-4 border-blue-900/30">Save Updates</button>
+                        <button type="button" onClick={() => navigate(-1)} className="flex-1 py-4 bg-slate-100 text-slate-500 rounded-[1.25rem] font-bold text-xs hover:bg-slate-200 transition-all border-b-4 border-slate-200">Cancel</button>
                     </div>
                 </form>
             </div>
@@ -260,16 +442,13 @@ export function Update() {
     );
 }
 
-const Input = ({ label, value, onChange, type = "text" }) => (
-    <div className="space-y-2">
-        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">{label}</label>
-        <input type={type} className="w-full px-5 py-3.5 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:ring-4 focus:ring-blue-100 transition-all font-bold text-slate-700" value={value} onChange={e => onChange(e.target.value)} />
+const FormGroup = ({ label, children }) => (
+    <div className="space-y-3">
+        <label className="text-xs font-black text-slate-400 uppercase tracking-widest pl-1">{label}</label>
+        {children}
     </div>
 );
 
-const Textarea = ({ label, value, onChange }) => (
-    <div className="space-y-2">
-        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">{label}</label>
-        <textarea className="w-full px-5 py-3.5 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:ring-4 focus:ring-blue-100 transition-all font-semibold min-h-[140px] leading-relaxed text-slate-700" value={value} onChange={e => onChange(e.target.value)} />
-    </div>
+const SectionHeader = ({ title }) => (
+    <h2 className="text-xl font-black text-slate-800 tracking-tight">{title}</h2>
 );

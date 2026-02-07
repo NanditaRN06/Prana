@@ -14,3 +14,29 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+@layer components {
+  .input-field {
+    @apply w-full px-5 py-4 bg-slate-50 border-2 border-slate-100 rounded-[1.25rem] outline-none font-semibold transition-all duration-200 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10;
+  }
+
+  .textarea-field {
+    @apply w-full px-5 py-4 bg-slate-50 border-2 border-slate-100 rounded-[1.25rem] outline-none font-medium leading-relaxed transition-all duration-200 resize-y focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10;
+  }
+
+  .chip {
+    @apply px-5 py-3 bg-slate-50 border-2 border-transparent rounded-[1rem] text-sm font-bold text-slate-500 cursor-pointer transition-all duration-200 hover:bg-slate-100;
+  }
+
+  .chip.active {
+    @apply bg-blue-50 border-blue-500 text-blue-700;
+  }
+
+  .radio-box {
+    @apply flex-1 p-4 bg-slate-50 border-2 border-transparent rounded-[1rem] text-center font-bold text-slate-500 cursor-pointer transition-all duration-200;
+  }
+
+  .radio-box.active {
+    @apply bg-red-50 border-red-500 text-red-700;
+  }
+}
