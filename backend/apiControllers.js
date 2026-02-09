@@ -152,12 +152,13 @@ exports.logout = (req, res) => {
 
 exports.getPatient = async (req, res) => {
     try {
-        const patientId = req.params.patientId.trim();
+        const patientId = decodeURIComponent(req.params.patientId.trim());
         const patient = await Patient.findOne({ userId: req.user.id, name: { $regex: new RegExp(`^${patientId}$`, 'i') } });
 
         if (!patient) return res.status(404).json({ message: "Clinical record not found for the specified patient." });
         res.json(patient);
     } catch (error) {
+        console.error("Error in getPatient:", error);
         res.status(500).json({ message: "Failed to load clinical documentation." });
     }
 };
@@ -167,9 +168,35 @@ exports.updatePatient = async (req, res) => {
     const updatedData = req.body;
 
     try {
+        const currentPatient = await Patient.findOne({ name: patientId, userId: req.user.id });
+        if (!currentPatient) return res.status(404).json({ error: "Patient record not found." });
+
+        const versionSnapshot = currentPatient.toObject();
+        delete versionSnapshot._id;
+        delete versionSnapshot.versions;
+        delete versionSnapshot.updatedAt;
+        const changedFields = [];
+        const ignoreFields = ['versions', 'updatedAt', 'userId', '_id', '__v', 'createdAt'];
+
+        for (const key in updatedData) {
+            if (ignoreFields.includes(key)) continue;
+            const currentVal = JSON.stringify(currentPatient[key]);
+            const newVal = JSON.stringify(updatedData[key]);
+
+            if (currentVal !== newVal) {
+                const readableKey = key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+                changedFields.push(readableKey);
+            }
+        }
+
+        const changeSummary = changedFields.length > 0 ? `Edited ${changedFields.join(", ")}` : "Manual Update";
+
         const result = await Patient.findOneAndUpdate(
             { name: patientId, userId: req.user.id },
-            { $set: updatedData },
+            {
+                $set: updatedData,
+                $push: { versions: { ...versionSnapshot, versionDate: new Date(), changeSummary } }
+            },
             { new: true, runValidators: true }
         );
 
@@ -197,7 +224,22 @@ exports.searchPatients = async (req, res) => {
     if (!query) return res.status(400).json({ message: "Search query is required." });
 
     try {
-        const patients = await Patient.find({ userId: req.user.id, name: { $regex: query, $options: 'i' }, });
+        const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // Escape regex special chars
+        const patients = await Patient.find({
+            userId: req.user.id,
+            $or: [
+                { name: { $regex: escapedQuery, $options: 'i' } },
+                { clinicalDiagnosis: { $regex: escapedQuery, $options: 'i' } },
+                { chiefComplaints: { $regex: escapedQuery, $options: 'i' } },
+                { examination: { $regex: escapedQuery, $options: 'i' } },
+                { comorbidities: { $regex: escapedQuery, $options: 'i' } },
+                { "investigationDetails.ct.region": { $regex: escapedQuery, $options: 'i' } },
+                { "investigationDetails.mri.region": { $regex: escapedQuery, $options: 'i' } },
+                { "investigationDetails.enmg.region": { $regex: escapedQuery, $options: 'i' } },
+                { phone: { $regex: escapedQuery, $options: 'i' } },
+                { address: { $regex: escapedQuery, $options: 'i' } }
+            ]
+        });
         res.json(patients);
     } catch (error) {
         res.status(500).json({ message: "Error performing registry search." });

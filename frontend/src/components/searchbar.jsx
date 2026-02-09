@@ -34,7 +34,7 @@ const SearchBar = () => {
     };
 
     if (rerouteTo) {
-        return <Navigate to={`/patient/${nameofPerson}`} />;
+        return <Navigate to={`/patient/${encodeURIComponent(nameofPerson)}`} />;
     }
 
     return (
@@ -54,25 +54,64 @@ const SearchBar = () => {
                 <div className="absolute top-full left-0 right-0 mt-6 bg-white border border-slate-100 rounded-[2rem] shadow-2xl z-50 overflow-hidden animate-in slide-in-from-top-4 duration-300">
                     {searchResults.length > 0 ? (
                         <ul className="divide-y divide-slate-50">
-                            {searchResults.map((result) => (
-                                <li
-                                    key={result._id}
-                                    className="px-8 py-6 hover:bg-slate-50 cursor-pointer group transition-all"
-                                    onClick={() => handlePatientClick(result.name)}
-                                >
-                                    <div className="flex justify-between items-center">
-                                        <div className="space-y-1">
-                                            <span className="text-lg font-black text-slate-800 group-hover:text-blue-600 transition-colors">{result.name}</span>
-                                            <div className="flex gap-4 items-center">
-                                                <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Registry ID: {result._id.slice(-8).toUpperCase()}</span>
-                                                <span className="w-1 h-1 bg-slate-300 rounded-full"></span>
-                                                <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">{result.age} Years</span>
+                            {searchResults.map((result) => {
+                                const getSnippet = (doc, term) => {
+                                    if (!term) return null;
+                                    const termLower = term.toLowerCase();
+
+                                    const fields = [
+                                        doc.name, doc.clinicalDiagnosis, doc.chiefComplaints, doc.examination, doc.phone, doc.address,
+                                        ...(Array.isArray(doc.comorbidities) ? doc.comorbidities.map(c => typeof c === 'string' ? c : c.name) : []),
+                                        ...(doc.investigationDetails?.mri?.map(i => i.region) || []),
+                                        ...(doc.investigationDetails?.ct?.map(i => i.region) || []),
+                                        ...(doc.investigationDetails?.enmg?.map(i => i.region) || []),
+                                        doc.investigationDetails?.others
+                                    ];
+
+                                    for (const text of fields) {
+                                        if (text && typeof text === 'string' && text.toLowerCase().includes(termLower)) {
+                                            const words = text.split(/\s+/);
+                                            const matchIndex = words.findIndex(w => w.toLowerCase().includes(termLower));
+                                            if (matchIndex !== -1) {
+                                                const start = Math.max(0, matchIndex - 2);
+                                                const end = Math.min(words.length, matchIndex + 3);
+                                                const chunk = words.slice(start, end).join(" ");
+                                                return `...${chunk}...`;
+                                            }
+                                        }
+                                    }
+                                    return null;
+                                };
+                                const snippet = getSnippet(result, inputChange);
+                                const highlightRegex = new RegExp(`(${inputChange.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+
+                                return (
+                                    <li
+                                        key={result._id}
+                                        className="px-8 py-6 hover:bg-slate-50 cursor-pointer group transition-all"
+                                        onClick={() => handlePatientClick(result.name)}
+                                    >
+                                        <div className="flex justify-between items-center">
+                                            <div className="space-y-1">
+                                                <span className="text-lg font-black text-slate-800 group-hover:text-blue-600 transition-colors">
+                                                    {result.name}
+                                                </span>
+                                                {snippet && (
+                                                    <span className="block text-xs text-slate-500 font-medium mt-1">
+                                                        Match: <span className="bg-yellow-100 text-slate-800 px-1 rounded" dangerouslySetInnerHTML={{ __html: snippet.replace(highlightRegex, '<span class="font-bold underline">$1</span>') }} />
+                                                    </span>
+                                                )}
+                                                <div className="flex gap-4 items-center mt-1">
+                                                    <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Registry ID: {result._id.slice(-8).toUpperCase()}</span>
+                                                    <span className="w-1 h-1 bg-slate-300 rounded-full"></span>
+                                                    <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">{result.age} Years</span>
+                                                </div>
                                             </div>
+                                            <FaChevronRight className="text-slate-200 group-hover:text-blue-400 group-hover:translate-x-1 transition-all" />
                                         </div>
-                                        <FaChevronRight className="text-slate-200 group-hover:text-blue-400 group-hover:translate-x-1 transition-all" />
-                                    </div>
-                                </li>
-                            ))}
+                                    </li>
+                                )
+                            })}
                         </ul>
                     ) : (
                         <div className="px-10 py-16 text-center space-y-4">
