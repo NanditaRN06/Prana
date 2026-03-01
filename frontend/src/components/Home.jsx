@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from "react";
-import SearchBar from "./searchbar";
+// frontend/components/Home.jsx
+
+import { useState, useEffect } from "react";
+import SearchBar from "./SearchBar";
 import { Link, useNavigate } from "react-router-dom";
 import { FaUser, FaUserPlus, FaSignOutAlt } from 'react-icons/fa';
-import { logout } from '../features/auth';
+import { logout } from '../utils/auth';
 import { toast } from "react-hot-toast";
 import axios from "axios";
 

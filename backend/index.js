@@ -1,4 +1,5 @@
-// /backend/index.js
+// backend/index.js
+
 require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
@@ -11,7 +12,7 @@ const verifyUser = require("./verifyUser");
 const controllers = require('./apiControllers');
 
 app.use(cors({
-    origin: "http://localhost:5173",
+    origin: process.env.FE_URL || "http://localhost:5173",
     methods: 'GET,POST,PUT,DELETE',
     credentials: true
 }));

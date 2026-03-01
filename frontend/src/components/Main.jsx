@@ -1,4 +1,5 @@
-import React from 'react';
+// frontend/components/Main.jsx
+
 import { Link } from 'react-router-dom';
 
 const Main = () => {
@@ -21,15 +22,11 @@ const Main = () => {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-6 w-full max-w-md">
-                <Link to="/login" className="flex-1">
-                    <button className="w-full py-5 bg-blue-600 text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-2xl shadow-blue-200 hover:bg-blue-700 hover:scale-[1.02] active:scale-100 transition-all border-b-6 border-blue-900/40">
-                        Access Portal
-                    </button>
+                <Link to="/login" className="flex-1 w-full py-5 bg-blue-600 text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-2xl shadow-blue-200 hover:bg-blue-700 hover:scale-[1.02] active:scale-100 transition-all border-b-6 border-blue-900/40 inline-block text-center cursor-pointer">
+                    Access Portal
                 </Link>
-                <Link to="/signup" className="flex-1">
-                    <button className="w-full py-5 bg-white text-slate-900 border-2 border-slate-100 rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-xl hover:bg-slate-50 hover:scale-[1.02] active:scale-100 transition-all border-b-6 border-slate-200">
-                        Join Registry
-                    </button>
+                <Link to="/signup" className="flex-1 w-full py-5 bg-white text-slate-900 border-2 border-slate-100 rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-xl hover:bg-slate-50 hover:scale-[1.02] active:scale-100 transition-all border-b-6 border-slate-200 inline-block text-center cursor-pointer">
+                    Join Registry
                 </Link>
             </div>
 

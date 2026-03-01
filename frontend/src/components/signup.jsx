@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+// frontend/components/Signup.jsx
+
+import React, { useState, useRef } from 'react';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { toast } from 'react-hot-toast';
@@ -16,6 +18,7 @@ const SignUp = () => {
     const [passwordTooltip, setPasswordTooltip] = useState(true);
     const [redirect, setRedirect] = useState(false);
     const navigate = useNavigate();
+    const usernameWarnedRef = useRef(false);
 
     const passwordRegex = /^[A-Za-z0-9_@]{8,}$/;
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -55,11 +58,15 @@ const SignUp = () => {
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
+
         if (name === 'password') {
             setPasswordTooltip(value.length < 8);
         }
+        if (name === 'username' && value.length > 0 && !usernameWarnedRef.current) {
+            usernameWarnedRef.current = true;
+            toast('Note: Username cannot be changed once created.', { icon: '⚠️', position: 'bottom-center', duration: 3000, id: 'username-warning' });
+        }
     };
-
     if (redirect) return <Navigate to="/login" />;
 
     return (
@@ -130,8 +137,8 @@ const SignUp = () => {
                         Go back
                     </button>
                 </div>
-            </div>
-        </div>
+            </div >
+        </div >
     );
 };
 

@@ -1,3 +1,5 @@
+// backend/apiControllers.js
+
 const User = require("./models/User");
 const Patient = require("./models/Patient");
 const jwt = require("jsonwebtoken");
@@ -10,7 +12,8 @@ const JWT_SECRET = process.env.JWT_SECRET || "jwt_secret_key";
 const FE_URL = process.env.FE_URL || "http://localhost:5173";
 
 exports.signup = async (req, res) => {
-    const { fullName, email, username, password, phoneNumber } = req.body;
+    let { fullName, email, username, password, phoneNumber } = req.body;
+    if (phoneNumber === "") phoneNumber = undefined;
 
     try {
         const existingUser = await User.findOne({ $or: [{ email }, { username }, { phoneNumber }] });
@@ -152,8 +155,9 @@ exports.logout = (req, res) => {
 
 exports.getPatient = async (req, res) => {
     try {
-        const patientId = decodeURIComponent(req.params.patientId.trim());
-        const patient = await Patient.findOne({ userId: req.user.id, name: { $regex: new RegExp(`^${patientId}$`, 'i') } });
+        const patientId = req.params.patientId.trim();
+        const escapedId = patientId.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const patient = await Patient.findOne({ userId: req.user.id, name: { $regex: new RegExp(`^${escapedId}$`, 'i') } });
 
         if (!patient) return res.status(404).json({ message: "Clinical record not found for the specified patient." });
         res.json(patient);

@@ -1,3 +1,5 @@
+// frontend/components/ProfilePage.jsx
+
 import React, { useEffect, useState } from "react";
 import { useNavigate } from 'react-router-dom';
 import { toast } from "react-hot-toast";
@@ -13,6 +15,11 @@ function ProfilePage() {
     const [username, setUsername] = useState("");
     const [countryCode, setCountryCode] = useState("+91");
     const [phoneDigits, setPhoneDigits] = useState("");
+    const [department, setDepartment] = useState("");
+    const [position, setPosition] = useState("");
+    const [qualifications, setQualifications] = useState([]);
+    const [consultationAddress, setConsultationAddress] = useState("");
+    const [consultationHospital, setConsultationHospital] = useState("");
 
     const navigate = useNavigate();
 
@@ -38,6 +45,11 @@ function ProfilePage() {
                 } else {
                     setPhoneDigits(phone);
                 }
+                setDepartment(data.department || "");
+                setPosition(data.position || "");
+                setQualifications(data.qualifications || []);
+                setConsultationAddress(data.consultationAddress || "");
+                setConsultationHospital(data.consultationHospital || "");
                 setLoading(false);
             })
             .catch((error) => {
@@ -48,8 +60,17 @@ function ProfilePage() {
     }, [navigate]);
 
     const handleSave = () => {
-        const fullPhoneNumber = `${countryCode} ${phoneDigits}`.trim();
-        const updatedData = { fullName, email, username, phoneNumber: fullPhoneNumber };
+        const fullPhoneNumber = phoneDigits.trim().length > 0 ? `${countryCode} ${phoneDigits}`.trim() : "";
+        const updatedData = {
+            fullName,
+            email,
+            phoneNumber: fullPhoneNumber,
+            department,
+            position,
+            qualifications: qualifications.filter(q => q.trim() !== ""),
+            consultationAddress,
+            consultationHospital
+        };
         const saveToast = toast.loading("Updating your profile...");
 
         axios.put("http://localhost:9000/api/account", updatedData, { withCredentials: true })
@@ -167,7 +188,12 @@ function ProfilePage() {
                                 <ProfileItem label="Full Name" value={userData.fullName} />
                                 <ProfileItem label="Username" value={userData.username} />
                                 <ProfileItem label="Email Contact" value={userData.email} />
+                                <ProfileItem label="Department" value={userData.department || "Not specified"} />
+                                <ProfileItem label="Position" value={userData.position || "Not specified"} />
+                                <ProfileItem label="Qualifications" value={userData.qualifications?.length ? userData.qualifications.join(", ") : "None listed"} />
+                                <ProfileItem label="Consultation Hospital" value={userData.consultationHospital || "Not specified"} />
                                 <ProfileItem label="Phone Number" value={userData.phoneNumber || "Not registered"} />
+                                <ProfileItem label="Consultation Address" value={userData.consultationAddress || "Not specified"} fullWidth />
                             </div>
 
                             <div className="pt-10 flex flex-col gap-4 border-t border-slate-50">
@@ -198,7 +224,7 @@ function ProfilePage() {
                         <div className="space-y-8 animate-in fade-in duration-300">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <InputItem label="Full Name" value={fullName} onChange={setFullName} />
-                                <InputItem label="Username" value={username} onChange={setUsername} />
+                                <InputItem label="Username" value={username} onChange={setUsername} disabled />
                                 <InputItem label="Email Address" value={email} disabled />
                                 <div className="space-y-2">
                                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Phone Number</label>
@@ -218,6 +244,53 @@ function ProfilePage() {
                                             placeholder="10 Digits"
                                         />
                                     </div>
+                                </div>
+                            </div>
+
+                            <div className="pt-6 border-t border-slate-50">
+                                <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4">Professional Details</h3>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <InputItem label="Department" value={department} onChange={setDepartment} placeholder="ex: Neurology" />
+                                    <InputItem label="Position" value={position} onChange={setPosition} placeholder="ex: Associate Professor" />
+                                </div>
+                                <div className="mt-4">
+                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 block mb-2">Qualifications</label>
+                                    <div className="space-y-2">
+                                        {qualifications.map((q, idx) => (
+                                            <div key={idx} className="flex gap-2">
+                                                <input
+                                                    type="text"
+                                                    className="flex-1 px-5 py-3 bg-slate-50 border border-slate-100 rounded-xl outline-none focus:ring-2 focus:ring-blue-100 font-bold text-slate-700 text-sm"
+                                                    value={q}
+                                                    onChange={(e) => {
+                                                        const newQuals = [...qualifications];
+                                                        newQuals[idx] = e.target.value;
+                                                        setQualifications(newQuals);
+                                                    }}
+                                                    placeholder="ex: MBBS"
+                                                />
+                                                <button
+                                                    onClick={() => {
+                                                        const newQuals = qualifications.filter((_, i) => i !== idx);
+                                                        setQualifications(newQuals);
+                                                    }}
+                                                    className="w-10 h-10 flex items-center justify-center bg-red-50 text-red-500 rounded-xl hover:bg-red-100 transition-colors font-bold text-lg"
+                                                >
+                                                    -
+                                                </button>
+                                            </div>
+                                        ))}
+                                        <button
+                                            onClick={() => setQualifications([...qualifications, ""])}
+                                            className="px-4 py-2 bg-slate-100 text-slate-600 rounded-xl text-xs font-bold uppercase tracking-wider hover:bg-slate-200 transition-colors flex items-center gap-2"
+                                        >
+                                            + Add Qualification
+                                        </button>
+                                    </div>
+                                </div>
+                                <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <InputItem label="Consultation Hospital" value={consultationHospital} onChange={setConsultationHospital} placeholder="ex: ABC Hospital" />
+                                    <InputItem label="Consultation Address" value={consultationAddress} onChange={setConsultationAddress} placeholder="Clinic or Hospital Address" />
                                 </div>
                             </div>
 
@@ -243,8 +316,8 @@ function ProfilePage() {
     );
 }
 
-const ProfileItem = ({ label, value }) => (
-    <div className="flex flex-col space-y-1">
+const ProfileItem = ({ label, value, fullWidth }) => (
+    <div className={`flex flex-col space-y-1 ${fullWidth ? 'md:col-span-2' : ''}`}>
         <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">{label}</span>
         <span className="text-base font-bold text-slate-800">{value}</span>
     </div>

@@ -1,3 +1,5 @@
+// frontend/components/NewEntry.jsx
+
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";

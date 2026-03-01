@@ -1,4 +1,6 @@
-import React, { useState } from "react";
+// frontend/components/SearchBar.jsx
+
+import { useState } from "react";
 import { Navigate } from "react-router-dom";
 import { FaSearch, FaChevronRight } from 'react-icons/fa';
 import axios from "axios";
@@ -18,7 +20,7 @@ const SearchBar = () => {
     const handleSearches = async (value) => {
         if (value.trim()) {
             try {
-                const response = await axios.get(`http://localhost:9000/api/search-patients?query=${value}`, { withCredentials: true });
+                const response = await axios.get(`http://localhost:9000/api/search-patients?query=${encodeURIComponent(value)}`, { withCredentials: true });
                 setSearchResults(response.data);
             } catch (error) {
                 console.error("Error searching patients:", error.message);
@@ -98,7 +100,15 @@ const SearchBar = () => {
                                                 </span>
                                                 {snippet && (
                                                     <span className="block text-xs text-slate-500 font-medium mt-1">
-                                                        Match: <span className="bg-yellow-100 text-slate-800 px-1 rounded" dangerouslySetInnerHTML={{ __html: snippet.replace(highlightRegex, '<span class="font-bold underline">$1</span>') }} />
+                                                        Match: <span className="bg-yellow-100 text-slate-800 px-1 rounded">
+                                                            {snippet.split(highlightRegex).map((part, i) =>
+                                                                part.toLowerCase() === inputChange.toLowerCase() ? (
+                                                                    <span key={i} className="font-bold underline">{part}</span>
+                                                                ) : (
+                                                                    part
+                                                                )
+                                                            )}
+                                                        </span>
                                                     </span>
                                                 )}
                                                 <div className="flex gap-4 items-center mt-1">

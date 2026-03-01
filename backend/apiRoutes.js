@@ -1,4 +1,5 @@
 // /backend/apiRoutes.js
+
 const express = require('express');
 require('dotenv').config();
 const router = express.Router();
@@ -32,16 +33,25 @@ router.get("/account", verifyUser, async (req, res) => {
 });
 
 router.put("/account", verifyUser, async (req, res) => {
-    const { fullName, email, username, phoneNumber } = req.body;
+    const { fullName, email, phoneNumber } = req.body;
 
     try {
         const user = await User.findById(req.user.id);
         if (!user) return res.status(404).json({ message: "User not found" });
 
-        user.fullName = fullName || user.fullName;
-        user.email = email || user.email;
-        user.username = username || user.username;
-        user.phoneNumber = phoneNumber || user.phoneNumber;
+        user.fullName = req.body.fullName !== undefined ? req.body.fullName : user.fullName;
+        user.email = req.body.email !== undefined ? req.body.email : user.email;
+        // username is immutable after account creation and is never updated here
+        if (req.body.phoneNumber === "") {
+            user.phoneNumber = undefined;
+        } else if (req.body.phoneNumber !== undefined) {
+            user.phoneNumber = req.body.phoneNumber;
+        }
+        user.department = req.body.department !== undefined ? req.body.department : user.department;
+        user.position = req.body.position !== undefined ? req.body.position : user.position;
+        user.qualifications = req.body.qualifications !== undefined ? req.body.qualifications : user.qualifications;
+        user.consultationAddress = req.body.consultationAddress !== undefined ? req.body.consultationAddress : user.consultationAddress;
+        user.consultationHospital = req.body.consultationHospital !== undefined ? req.body.consultationHospital : user.consultationHospital;
 
         await user.save();
         res.json({ message: "Profile updated successfully", user });

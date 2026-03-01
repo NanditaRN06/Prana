@@ -1,3 +1,5 @@
+// frontend/components/PatientForm.jsx
+
 import React, { useState, useEffect } from "react";
 import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
@@ -100,9 +102,9 @@ const PatientForm = ({ initialData = {}, mode = "create", onSubmit }) => {
     const isFormValid = () => {
         return (
             formData.name.trim() !== "" &&
-            formData.age.trim() !== "" &&
-            formData.phone.trim().length === 10 &&
-            formData.examdate.trim() !== ""
+            String(formData.age).trim() !== "" &&
+            String(formData.phone).trim().length === 10 &&
+            String(formData.examdate).trim() !== ""
         );
     };
 

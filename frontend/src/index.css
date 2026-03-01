@@ -40,3 +40,53 @@ body {
     @apply bg-red-50 border-red-500 text-red-700;
   }
 }
+
+@media screen {
+
+  .print-header,
+  .print-footer {
+    display: none;
+  }
+}
+
+@media print {
+  @page {
+    margin: 1cm;
+  }
+
+  body {
+    margin: 0;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .print-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 180px;
+    z-index: 1000;
+    background: white;
+  }
+
+  .print-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 100px;
+    z-index: 1000;
+    background: white;
+    display: flex !important;
+  }
+
+  .print-content {
+    margin-top: 190px;
+    margin-bottom: 110px;
+  }
+
+  .page-number:after {
+    content: counter(page);
+  }
+}

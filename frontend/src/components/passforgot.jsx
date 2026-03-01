@@ -1,3 +1,5 @@
+// frontend/components/PassForgot.jsx
+
 import React, { useState, useEffect } from 'react';
 import { Link, Navigate, useSearchParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';

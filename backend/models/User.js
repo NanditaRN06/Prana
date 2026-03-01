@@ -1,3 +1,5 @@
+// backend/models/User.js
+
 const mongoose = require("mongoose");
 
 const signupSchema = new mongoose.Schema({
@@ -8,6 +10,11 @@ const signupSchema = new mongoose.Schema({
     phoneNumber: { type: String, unique: true, sparse: true },
     role: { type: String, default: "visitor" },
     status: { type: String, enum: ["active", "deactivated"], default: "active" },
+    department: { type: String, default: "" },
+    position: { type: String, default: "" },
+    qualifications: { type: [String], default: [] },
+    consultationAddress: { type: String, default: "" },
+    consultationHospital: { type: String, default: "" }
 });
 
 module.exports = mongoose.model("members", signupSchema);

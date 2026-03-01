@@ -1,3 +1,5 @@
+// frontend/components/PatientData.jsx
+
 import React, { useState, useEffect } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -8,6 +10,7 @@ import PatientForm from "./PatientForm";
 export function Patient() {
     const { patientId } = useParams();
     const [patientData, setPatientData] = useState(null);
+    const [doctorProfile, setDoctorProfile] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [showVersions, setShowVersions] = useState(false);
@@ -15,22 +18,66 @@ export function Patient() {
     const navigate = useNavigate();
 
     useEffect(() => {
-        axios.get(`http://localhost:9000/patient/${patientId}`, { withCredentials: true })
-            .then((response) => {
-                setPatientData(response.data);
+        const fetchData = async () => {
+            try {
+                const [patientRes, accountRes] = await Promise.all([
+                    axios.get(`http://localhost:9000/patient/${encodeURIComponent(patientId)}`, { withCredentials: true }),
+                    axios.get("http://localhost:9000/api/account", { withCredentials: true })
+                ]);
+
+                setPatientData(patientRes.data);
+                setDoctorProfile(accountRes.data);
                 setLoading(false);
-            })
-            .catch(error => {
-                console.error("Error fetching patient:", error);
-                const errorMessage = error.response?.data?.message || error.message || "Patient record could not be retrieved.";
+            } catch (error) {
+                console.error("Error fetching data:", error);
+                const errorMessage = error.response?.data?.message || error.message || "Data could not be retrieved.";
                 setError(errorMessage);
                 setLoading(false);
-            });
+            }
+        };
+        fetchData();
     }, [patientId]);
 
     const handlePrint = () => {
+        if (!doctorProfile) {
+            toast.error("Profile data not loaded.");
+            return;
+        }
+
+        const { department, position, qualifications, consultationAddress, consultationHospital } = doctorProfile;
+        const missingFields = [];
+
+        if (!department) missingFields.push("Department");
+        if (!position) missingFields.push("Position");
+        if (!qualifications || qualifications.length === 0) missingFields.push("Qualifications");
+
+        if (missingFields.length > 0) {
+            toast.error((t) => (
+                <div className="flex flex-col gap-2">
+                    <p className="font-bold">Cannot Print</p>
+                    <p className="text-xs">Please complete your profile details:</p>
+                    <ul className="list-disc pl-4 text-xs italic opacity-80">
+                        {missingFields.map(f => <li key={f}>{f}</li>)}
+                    </ul>
+                    <button
+                        onClick={() => { toast.dismiss(t.id); navigate('/account'); }}
+                        className="mt-2 bg-white text-slate-800 px-3 py-1.5 rounded-lg text-xs font-bold shadow-sm"
+                    >
+                        Go to Profile
+                    </button>
+                </div>
+            ), { duration: 5000 });
+            return;
+        }
+
         const style = document.createElement('style');
-        style.innerHTML = '@page { margin: 0; } body { margin: 1.6cm; }';
+        style.innerHTML = `
+            @page { margin: 0.5cm; }
+            body { margin: 0; padding: 0; }
+            @media print {
+                body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            }
+        `;
         document.head.appendChild(style);
         window.print();
         document.head.removeChild(style);
@@ -51,7 +98,7 @@ export function Patient() {
 
     const performDelete = () => {
         const loadToast = toast.loading("Removing patient record...");
-        axios.delete(`http://localhost:9000/patient/${patientData.name}`, { withCredentials: true })
+        axios.delete(`http://localhost:9000/patient/${encodeURIComponent(patientData.name)}`, { withCredentials: true })
             .then(() => {
                 toast.success("Patient record successfully removed.", { id: loadToast });
                 navigate("/home");
@@ -65,7 +112,7 @@ export function Patient() {
 
     return (
         <div className="max-w-4xl mx-auto py-10 print:py-0 print:m-0 print:max-w-none">
-            <PatientView data={patientData} handlePrint={handlePrint} handleDelete={handleDelete} navigate={navigate} setShowVersions={setShowVersions} />
+            <PatientView data={patientData} doctorProfile={doctorProfile} handlePrint={handlePrint} handleDelete={handleDelete} navigate={navigate} setShowVersions={setShowVersions} />
 
             {showVersions && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
@@ -113,7 +160,7 @@ export function Patient() {
     );
 }
 
-const PatientView = ({ data, handlePrint, handleDelete, navigate, setShowVersions, isVersionView = false }) => {
+const PatientView = ({ data, doctorProfile, handlePrint, handleDelete, navigate, setShowVersions, isVersionView = false }) => {
     if (!data) {
         return <div className="text-center py-20 text-slate-400 font-bold">No patient data available</div>;
     }
@@ -149,28 +196,48 @@ const PatientView = ({ data, handlePrint, handleDelete, navigate, setShowVersion
                 </div>
             )}
 
-            <div className="hidden print:block border-b-2 border-slate-900 pb-6 mb-10">
-                <div className="flex justify-between items-start">
-                    <div>
-                        <h2 className="text-3xl font-black text-slate-900 tracking-tighter uppercase mb-1">Medical Report</h2>
-                        <div className="flex gap-4 text-[9px] font-bold text-slate-500 uppercase tracking-wider">
-                            <span>Last Edited: {formatDate(data.updatedAt || data.examdate)}</span>
-                            <span className="opacity-30">|</span>
-                            <span>Consultation: {formatDate(examdate)}</span>
-                        </div>
-                    </div>
-                    <div className="text-right font-mono text-[10px] text-slate-400">
-                        Printed: {new Date().toLocaleString('en-GB')}
-                    </div>
-                </div>
-            </div>
+            {!isVersionView && (
+                <div className="print-header bg-white px-10 pt-6">
+                    {doctorProfile && (
+                        <div className="border-b-4 border-slate-800 pb-2">
+                            <div className="flex justify-between items-center mb-4">
+                                <div className="w-1/4">
+                                    <img src="/hospital.png" alt="Hospital Logo" className="h-24 w-auto object-contain" />
+                                </div>
 
-            <div className={`p-10 space-y-12 print:p-0 print:space-y-8 ${isVersionView ? 'p-0 space-y-8' : ''}`}>
+                                <div className="flex-1 text-center px-4">
+                                    <h1 className="text-2xl font-black text-slate-900 uppercase tracking-tight">{doctorProfile.fullName}</h1>
+                                    <div className="flex flex-wrap justify-center gap-2 text-sm font-bold text-slate-600 mt-1">
+                                        {(doctorProfile.qualifications || []).join(", ")}
+                                    </div>
+                                </div>
+
+                                <div className="w-1/4 text-right">
+                                    <h2 className="text-sm font-black text-slate-800 uppercase tracking-widest">{doctorProfile.position}</h2>
+                                    <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider mt-1">{doctorProfile.department}</h3>
+                                    {doctorProfile.consultationHospital && <p className="text-[10px] font-bold text-slate-400 uppercase mt-2">{doctorProfile.consultationHospital}</p>}
+                                </div>
+                            </div>
+
+                            <div className="flex justify-between items-center text-[10px] font-bold text-slate-600 border-t border-slate-300 pt-2 bg-slate-50 px-2 rounded-md">
+                                <span>{doctorProfile.consultationAddress}</span>
+                                <div className="flex gap-4">
+                                    <span>Ph: {doctorProfile.phoneNumber}</span>
+                                    <span>Email: {doctorProfile.email}</span>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            )}
+
+            <div className={`p-10 space-y-12 print:space-y-8 print-content ${isVersionView ? 'p-0 space-y-8' : ''}`}>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 print:grid-cols-2 print:gap-10">
                     <div className="space-y-4">
                         <SectionTitle title="Patient Details" />
                         <div className="space-y-3">
                             <ParticularRow label="Full Name" value={name} />
+                            <ParticularRow label="Registry ID" value={data._id ? data._id.slice(-8).toUpperCase() : 'N/A'} highlight />
                             <ParticularRow label="Age" value={`${age} Years`} />
                             {phone && <ParticularRow label="Contact" value={phone} icon={<FaPhone size={8} />} />}
                             {address && <ParticularRow label="Address" value={address} icon={<FaMapMarkerAlt size={8} />} />}
@@ -326,10 +393,16 @@ const PatientView = ({ data, handlePrint, handleDelete, navigate, setShowVersion
                     </div>
                 )}
 
-                <div className="hidden print:block pt-32">
-                    <div className="flex justify-end gap-16">
-                        <div className="w-40 text-center border-t border-slate-400 pt-3"><p className="text-[8px] font-black uppercase text-slate-400">Official Seal</p></div>
-                        <div className="w-56 text-center border-t border-slate-400 pt-3"><p className="text-[8px] font-black uppercase text-slate-500">Authorized Signature</p></div>
+                <div className="print-footer bg-white px-10 pb-4 flex-col justify-end gap-2">
+                    <div className="flex justify-end gap-16 mb-2 w-full">
+                        <div className="w-40 text-center border-t border-slate-400 pt-2"><p className="text-[8px] font-black uppercase text-slate-400">Official Seal</p></div>
+                        <div className="w-56 text-center border-t border-slate-400 pt-2"><p className="text-[8px] font-black uppercase text-slate-500">Authorized Signature</p></div>
+                    </div>
+
+                    <div className="flex justify-between items-center text-[10px] text-slate-400 font-mono border-t border-dashed border-slate-200 pt-2 w-full">
+                        <span>Prana Clinical Management System</span>
+                        <span className="font-bold text-slate-500">Page <span className="page-number"></span></span>
+                        <span>Date of Print: {new Date().toLocaleString()}</span>
                     </div>
                 </div>
             </div>
@@ -354,7 +427,7 @@ export function Update() {
 
     const handleUpdate = (submissionData) => {
         const loadToast = toast.loading("Updating patient information...");
-        axios.put(`http://localhost:9000/update/${patientData.name}`, submissionData, { withCredentials: true })
+        axios.put(`http://localhost:9000/update/${encodeURIComponent(patientData.name)}`, submissionData, { withCredentials: true })
             .then(() => {
                 toast.success("Patient information updated.", { id: loadToast });
                 navigate(`/patient/${submissionData.name}`);
