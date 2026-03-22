@@ -21,8 +21,8 @@ export function Patient() {
         const fetchData = async () => {
             try {
                 const [patientRes, accountRes] = await Promise.all([
-                    axios.get(`http://localhost:9000/patient/${encodeURIComponent(patientId)}`, { withCredentials: true }),
-                    axios.get("http://localhost:9000/api/account", { withCredentials: true })
+                    axios.get(`${import.meta.env.VITE_API_URL}/patient/${encodeURIComponent(patientId)}`, { withCredentials: true }),
+                    axios.get(`${import.meta.env.VITE_API_URL}/api/account`, { withCredentials: true })
                 ]);
 
                 setPatientData(patientRes.data);
@@ -98,7 +98,7 @@ export function Patient() {
 
     const performDelete = () => {
         const loadToast = toast.loading("Removing patient record...");
-        axios.delete(`http://localhost:9000/patient/${encodeURIComponent(patientData.name)}`, { withCredentials: true })
+        axios.delete(`${import.meta.env.VITE_API_URL}/patient/${encodeURIComponent(patientData.name)}`, { withCredentials: true })
             .then(() => {
                 toast.success("Patient record successfully removed.", { id: loadToast });
                 navigate("/home");
@@ -441,7 +441,7 @@ export function Update() {
 
     const handleUpdate = (submissionData) => {
         const loadToast = toast.loading("Updating patient information...");
-        axios.put(`http://localhost:9000/update/${encodeURIComponent(patientData.name)}`, submissionData, { withCredentials: true })
+        axios.put(`${import.meta.env.VITE_API_URL}/update/${encodeURIComponent(patientData.name)}`, submissionData, { withCredentials: true })
             .then(() => {
                 toast.success("Patient information updated.", { id: loadToast });
                 navigate(`/patient/${submissionData.name}`);

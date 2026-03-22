@@ -14,7 +14,7 @@ export const ForgotPassword = () => {
         e.preventDefault();
         const loadToast = toast.loading("Verifying identity...");
 
-        axios.post('http://localhost:9000/forgot-password', { contact: email })
+        axios.post(`${import.meta.env.VITE_API_URL}/forgot-password`, { contact: email })
             .then((res) => {
                 toast.success(res.data.message, { id: loadToast });
             })
@@ -81,7 +81,7 @@ export const ResetPassword = ({ id, token }) => {
             return;
         }
 
-        axios.get(`http://localhost:9000/reset-password-verify?id=${id}&token=${token}`)
+        axios.get(`${import.meta.env.VITE_API_URL}/reset-password-verify?id=${id}&token=${token}`)
             .then(() => {
                 setValidToken(true);
                 setVerifying(false);
@@ -106,7 +106,7 @@ export const ResetPassword = ({ id, token }) => {
         }
 
         const loadToast = toast.loading("Updating security credentials...");
-        axios.post(`http://localhost:9000/reset-password-action`, { id, token, newPassword })
+        axios.post(`${import.meta.env.VITE_API_URL}/reset-password-action`, { id, token, newPassword })
             .then((res) => {
                 toast.success(res.data.message, { id: loadToast });
                 setTimeout(() => setRedirect(true), 1500);

@@ -44,7 +44,7 @@ const SignUp = () => {
         }
 
         const loadToast = toast.loading("Creating your account...");
-        axios.post('http://localhost:9000/signup', { fullName, email, username, phoneNumber, password })
+        axios.post(`${import.meta.env.VITE_API_URL}/signup`, { fullName, email, username, phoneNumber, password })
             .then(() => {
                 toast.success('Account created successfully.', { id: loadToast });
                 setTimeout(() => setRedirect(true), 1500);

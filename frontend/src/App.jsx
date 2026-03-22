@@ -21,7 +21,7 @@ const App = () => {
 
 	const fetchUsername = async () => {
 		try {
-			const response = await axios.get("http://localhost:9000/api/account", { withCredentials: true });
+			const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/account`, { withCredentials: true });
 			setUser(response.data.username);
 		} catch (error) {
 			console.error("Error fetching user data:", error.response || error.message);

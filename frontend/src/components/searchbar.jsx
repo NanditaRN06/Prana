@@ -20,7 +20,7 @@ const SearchBar = () => {
     const handleSearches = async (value) => {
         if (value.trim()) {
             try {
-                const response = await axios.get(`http://localhost:9000/api/search-patients?query=${encodeURIComponent(value)}`, { withCredentials: true });
+                const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/search-patients?query=${encodeURIComponent(value)}`, { withCredentials: true });
                 setSearchResults(response.data);
             } catch (error) {
                 console.error("Error searching patients:", error.message);

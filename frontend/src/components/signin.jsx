@@ -15,7 +15,7 @@ const Login = ({ onLoginSuccess }) => {
         const loadToast = toast.loading("Checking login details...");
 
         axios.defaults.withCredentials = true;
-        axios.post('http://localhost:9000/login', formData)
+        axios.post(`${import.meta.env.VITE_API_URL}/login`, formData)
             .then((res) => {
                 if (res.data.authenticated) {
                     window.localStorage.setItem("isLoggedIn", true);

@@ -30,7 +30,7 @@ function ProfilePage() {
             return;
         }
 
-        axios.get("http://localhost:9000/api/account", { withCredentials: true })
+        axios.get(`${import.meta.env.VITE_API_URL}/api/account`, { withCredentials: true })
             .then((response) => {
                 const data = response.data;
                 setUserData(data);
@@ -73,7 +73,7 @@ function ProfilePage() {
         };
         const saveToast = toast.loading("Updating your profile...");
 
-        axios.put("http://localhost:9000/api/account", updatedData, { withCredentials: true })
+        axios.put(`${import.meta.env.VITE_API_URL}/api/account`, updatedData, { withCredentials: true })
             .then(() => {
                 toast.success("Profile saved.", { id: saveToast });
                 setUserData(prev => ({ ...prev, ...updatedData }));
@@ -113,7 +113,7 @@ function ProfilePage() {
 
     const performDeactivate = () => {
         const delToast = toast.loading("Deactivating your account...");
-        axios.post("http://localhost:9000/api/deactivate", {}, { withCredentials: true })
+        axios.post(`${import.meta.env.VITE_API_URL}/api/deactivate`, {}, { withCredentials: true })
             .then((response) => {
                 toast.success("Account successfully deactivated.", { id: delToast });
                 window.localStorage.removeItem("isLoggedIn");
@@ -154,7 +154,7 @@ function ProfilePage() {
 
     const performDelete = () => {
         const delToast = toast.loading("Deleting your account...");
-        axios.delete("http://localhost:9000/api/account", { withCredentials: true })
+        axios.delete(`${import.meta.env.VITE_API_URL}/api/account`, { withCredentials: true })
             .then((response) => {
                 toast.success("Account deleted.", { id: delToast });
                 window.localStorage.removeItem("isLoggedIn");

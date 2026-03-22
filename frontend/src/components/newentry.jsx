@@ -11,7 +11,7 @@ const NewEntry = () => {
 
     const handleCreate = (submissionData) => {
         const loadToast = toast.loading("Saving patient data...");
-        axios.post('http://localhost:9000/new-entry', submissionData, { withCredentials: true })
+        axios.post(`${import.meta.env.VITE_API_URL}/new-entry`, submissionData, { withCredentials: true })
             .then(() => {
                 toast.success("Patient record saved.", { id: loadToast });
                 navigate(`/patient/${submissionData.name}`);
