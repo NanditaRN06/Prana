@@ -9,7 +9,7 @@ const verifyUser = (req, res, next) => {
         return res.status(401).json({ message: "Missing token" });
     }
 
-    jwt.verify(token, process.env.JWT_SECRET || "jwt_secret_key", (err, decoded) => {
+    jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
         if (err) {
             console.error("JWT verification error:", err.message);
             return res.status(401).json({ message: "Invalid or expired token" });

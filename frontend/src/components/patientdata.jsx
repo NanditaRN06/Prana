@@ -231,181 +231,195 @@ const PatientView = ({ data, doctorProfile, handlePrint, handleDelete, navigate,
                 </div>
             )}
 
-            <div className={`p-10 space-y-12 print:space-y-8 print-content ${isVersionView ? 'p-0 space-y-8' : ''}`}>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 print:grid-cols-2 print:gap-10">
-                    <div className="space-y-4">
-                        <SectionTitle title="Patient Details" />
-                        <div className="space-y-3">
-                            <ParticularRow label="Full Name" value={name} />
-                            <ParticularRow label="Registry ID" value={data._id ? data._id.slice(-8).toUpperCase() : 'N/A'} highlight />
-                            <ParticularRow label="Age" value={`${age} Years`} />
-                            {phone && <ParticularRow label="Contact" value={phone} icon={<FaPhone size={8} />} />}
-                            {address && <ParticularRow label="Address" value={address} icon={<FaMapMarkerAlt size={8} />} />}
-                            <ParticularRow label="Date" value={formatDate(examdate)} />
-                        </div>
-                    </div>
-
-                    <div className="space-y-4">
-                        <SectionTitle title="Medical History" />
-                        <div className="space-y-3">
-                            <div className="p-4 rounded-2xl border bg-slate-50 border-slate-100 print:p-2 print:border-none print:bg-white">
-                                <span className="block text-[8px] font-black text-slate-400 uppercase tracking-widest mb-2 print:text-[9px]">Pre-existing Conditions</span>
-                                {displayComorbidities.length > 0 ? (
-                                    <div className="space-y-1">
-                                        {displayComorbidities.map((c, i) => (
-                                            <div key={i} className="flex justify-between text-sm print:text-xs">
-                                                <span className="font-bold text-slate-800">{(typeof c === 'string' ? c : c.name || "").replace(/^Other:\s*/, '')}</span>
-                                                {c.duration && <span className="text-slate-500 text-xs italic">{c.duration}</span>}
-                                            </div>
-                                        ))}
+            <table className="w-full">
+                <thead className="hidden print:table-header-group">
+                    <tr><td><div className="h-[190px]" /></td></tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td className="align-top">
+                            <div className={`p-10 space-y-12 print:space-y-8 print-content ${isVersionView ? 'p-0 space-y-8' : ''}`}>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 print:grid-cols-2 print:gap-10">
+                                    <div className="space-y-4">
+                                        <SectionTitle title="Patient Details" />
+                                        <div className="space-y-3">
+                                            <ParticularRow label="Full Name" value={name} />
+                                            <ParticularRow label="Registry ID" value={data._id ? data._id.slice(-8).toUpperCase() : 'N/A'} highlight />
+                                            <ParticularRow label="Age" value={`${age} Years`} />
+                                            {phone && <ParticularRow label="Contact" value={phone} icon={<FaPhone size={8} />} />}
+                                            {address && <ParticularRow label="Address" value={address} icon={<FaMapMarkerAlt size={8} />} />}
+                                            <ParticularRow label="Date" value={formatDate(examdate)} />
+                                        </div>
                                     </div>
-                                ) : <span className="text-slate-400 italic text-xs">None recorded</span>}
-                            </div>
-                            <ParticularRow label="Allergies" value={allergies} highlight={allergies === "Yes"} subValue={allergies === "Yes" ? allergyDetails : null} />
-                            {currentMedications && (
-                                <div className="p-4 rounded-2xl border bg-slate-50 border-slate-100 print:p-2 print:border-none print:bg-white">
-                                    <span className="block text-[8px] font-black text-slate-400 uppercase tracking-widest mb-2">Current Medications</span>
-                                    <span className="block font-medium text-slate-700 text-sm whitespace-pre-wrap">{currentMedications}</span>
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                </div>
 
-                {clinicalDiagnosis && (
-                    <div className="space-y-4 print:space-y-2">
-                        <SectionTitle title="Clinical Diagnosis" />
-                        <div className="p-6 bg-blue-50 border border-blue-100 rounded-2xl text-blue-900 font-bold leading-relaxed shadow-sm print:p-0 print:border-none print:bg-white print:text-slate-900">
-                            {clinicalDiagnosis}
-                        </div>
-                    </div>
-                )}
-
-                <div className="space-y-10 print:space-y-8">
-                    <PrintSection label="Patient Complaints" content={chiefComplaints} />
-                    <PrintSection label="Examination Results" content={examination} />
-                </div>
-
-                <div className="space-y-4 print:space-y-2">
-                    <SectionTitle title="Requested Clinical Investigations" />
-                    <div className="flex flex-wrap gap-3 pt-2">
-                        {investigations.length > 0 ? investigations.map((inv, i) => {
-                            let displayText = inv;
-                            let details = "";
-
-                            if (inv === "MRI" && investigationDetails.mri) {
-                                if (Array.isArray(investigationDetails.mri)) {
-                                    const regions = investigationDetails.mri.map(item => item.region).filter(Boolean);
-                                    if (regions.length > 0) details = `(${regions.join(", ")})`;
-                                } else if (investigationDetails.mri.region) {
-                                    details = `(${investigationDetails.mri.region})`;
-                                }
-                            }
-
-                            if ((inv === "CT" || inv.startsWith("CT")) && investigationDetails.ct) {
-                                if (Array.isArray(investigationDetails.ct)) {
-                                    const ctDetails = investigationDetails.ct.map(item => {
-                                        const parts = [];
-                                        if (item.region) parts.push(item.region);
-                                        if (item.contrast) parts.push(item.contrast);
-                                        return parts.join(" - ");
-                                    }).filter(Boolean);
-                                    if (ctDetails.length > 0) details = `(${ctDetails.join(", ")})`;
-                                } else {
-                                    const parts = [];
-                                    if (investigationDetails.ct.region) parts.push(investigationDetails.ct.region);
-                                    if (investigationDetails.ct.contrast) parts.push(investigationDetails.ct.contrast);
-                                    if (parts.length > 0) details = `(${parts.join(", ")})`;
-                                }
-                            }
-
-                            if (inv === "ENMG" && investigationDetails.enmg) {
-                                if (Array.isArray(investigationDetails.enmg)) {
-                                    const regions = investigationDetails.enmg.map(item => item.region).filter(Boolean);
-                                    if (regions.length > 0) details = `(${regions.join(", ")})`;
-                                } else if (investigationDetails.enmg.region) {
-                                    details = `(${investigationDetails.enmg.region})`;
-                                }
-                            }
-
-                            if (inv === "Others" && investigationDetails.others) {
-                                displayText = investigationDetails.others;
-                                details = "";
-                            }
-
-                            return (
-                                <span key={i} className="px-4 py-2 bg-slate-50 text-slate-900 rounded-xl text-[11px] font-black uppercase tracking-tight border border-slate-200 print:bg-white print:border-slate-800">
-                                    {displayText} <span className="text-slate-500 font-medium normal-case ml-1">{details}</span>
-                                </span>
-                            );
-                        }) : <span className="text-slate-300 italic text-sm">None recorded</span>}
-                    </div>
-                </div>
-
-                {(treatments || otherDetails) && (
-                    <div className="space-y-4 print:space-y-2">
-                        <SectionTitle title="Treatment Plan" />
-
-                        {treatments && (
-                            <div className="p-8 bg-white border border-slate-100 rounded-3xl shadow-sm print:p-0 print:border-none print:shadow-none">
-                                <div className="space-y-3">
-                                    {(Array.isArray(treatments) ? treatments : []).map((medStr, idx) => {
-                                        const parts = medStr.split('-');
-                                        const name = parts[0] || "Unknown Medicine";
-                                        const dose = parts[1] || "";
-                                        const scheduleRaw = parts[2] || "[]";
-                                        const schedule = scheduleRaw.slice(1, -1).split(',').filter(s => s.trim() !== "");
-                                        const duration = parts[3] || "";
-                                        const instructions = parts[4] || "";
-
-                                        return (
-                                            <div key={idx} className="p-4 bg-slate-50 border border-slate-100 rounded-2xl space-y-2 print:p-2 print:border-none print:bg-white line-break-inside-avoid">
-                                                <div className="flex justify-between items-start">
-                                                    <span className="font-extrabold text-slate-900 text-sm italic">{name}</span>
-                                                    {dose && <span className="text-[10px] font-black bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full uppercase tracking-tighter">{dose}</span>}
-                                                </div>
-                                                <div className="flex flex-wrap gap-2 text-[10px] items-center">
-                                                    {schedule.length > 0 && (
-                                                        <div className="flex gap-1">
-                                                            {schedule.map(s => <span key={s} className="bg-slate-200 text-slate-600 px-1.5 py-0.5 rounded-md font-bold uppercase tracking-widest">{s}</span>)}
-                                                        </div>
-                                                    )}
-                                                    {duration && (
-                                                        <span className="text-slate-400 font-bold border-l border-slate-200 pl-2">For {duration}</span>
-                                                    )}
-                                                </div>
-                                                {instructions && (
-                                                    <p className="text-[11px] text-slate-500 italic font-medium pt-1 border-t border-slate-100/50">Note: {instructions}</p>
-                                                )}
+                                    <div className="space-y-4">
+                                        <SectionTitle title="Medical History" />
+                                        <div className="space-y-3">
+                                            <div className="p-4 rounded-2xl border bg-slate-50 border-slate-100 print:p-2 print:border-none print:bg-white">
+                                                <span className="block text-[8px] font-black text-slate-400 uppercase tracking-widest mb-2 print:text-[9px]">Pre-existing Conditions</span>
+                                                {displayComorbidities.length > 0 ? (
+                                                    <div className="space-y-1">
+                                                        {displayComorbidities.map((c, i) => (
+                                                            <div key={i} className="flex justify-between text-sm print:text-xs">
+                                                                <span className="font-bold text-slate-800">{(typeof c === 'string' ? c : c.name || "").replace(/^Other:\s*/, '')}</span>
+                                                                {c.duration && <span className="text-slate-500 text-xs italic">{c.duration}</span>}
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                ) : <span className="text-slate-400 italic text-xs">None recorded</span>}
                                             </div>
-                                        );
-                                    })}
+                                            <ParticularRow label="Allergies" value={allergies} highlight={allergies === "Yes"} subValue={allergies === "Yes" ? allergyDetails : null} />
+                                            {currentMedications && (
+                                                <div className="p-4 rounded-2xl border bg-slate-50 border-slate-100 print:p-2 print:border-none print:bg-white">
+                                                    <span className="block text-[8px] font-black text-slate-400 uppercase tracking-widest mb-2">Current Medications</span>
+                                                    <span className="block font-medium text-slate-700 text-sm whitespace-pre-wrap">{currentMedications}</span>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="space-y-10 print:space-y-8">
+                                    <PrintSection label="Patient Complaints" content={chiefComplaints} />
+                                    <PrintSection label="Examination Results" content={examination} />
+
+                                    {clinicalDiagnosis && (
+                                        <div className="space-y-4 print:space-y-2 mt-10 print:mt-8">
+                                            <SectionTitle title="Clinical Diagnosis" />
+                                            <div className="p-6 bg-blue-50 border border-blue-100 rounded-2xl text-blue-900 font-bold leading-relaxed shadow-sm print:p-0 print:border-none print:bg-white print:text-slate-900">
+                                                {clinicalDiagnosis}
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+
+                                <div className="space-y-4 print:space-y-2">
+                                    <SectionTitle title="Requested Clinical Investigations" />
+                                    <div className="flex flex-wrap gap-3 pt-2">
+                                        {investigations.length > 0 ? investigations.map((inv, i) => {
+                                            let displayText = inv;
+                                            let details = "";
+
+                                            if (inv === "MRI" && investigationDetails.mri) {
+                                                if (Array.isArray(investigationDetails.mri)) {
+                                                    const regions = investigationDetails.mri.map(item => item.region).filter(Boolean);
+                                                    if (regions.length > 0) details = `(${regions.join(", ")})`;
+                                                } else if (investigationDetails.mri.region) {
+                                                    details = `(${investigationDetails.mri.region})`;
+                                                }
+                                            }
+
+                                            if ((inv === "CT" || inv.startsWith("CT")) && investigationDetails.ct) {
+                                                if (Array.isArray(investigationDetails.ct)) {
+                                                    const ctDetails = investigationDetails.ct.map(item => {
+                                                        const parts = [];
+                                                        if (item.region) parts.push(item.region);
+                                                        if (item.contrast) parts.push(item.contrast);
+                                                        return parts.join(" - ");
+                                                    }).filter(Boolean);
+                                                    if (ctDetails.length > 0) details = `(${ctDetails.join(", ")})`;
+                                                } else {
+                                                    const parts = [];
+                                                    if (investigationDetails.ct.region) parts.push(investigationDetails.ct.region);
+                                                    if (investigationDetails.ct.contrast) parts.push(investigationDetails.ct.contrast);
+                                                    if (parts.length > 0) details = `(${parts.join(", ")})`;
+                                                }
+                                            }
+
+                                            if (inv === "ENMG" && investigationDetails.enmg) {
+                                                if (Array.isArray(investigationDetails.enmg)) {
+                                                    const regions = investigationDetails.enmg.map(item => item.region).filter(Boolean);
+                                                    if (regions.length > 0) details = `(${regions.join(", ")})`;
+                                                } else if (investigationDetails.enmg.region) {
+                                                    details = `(${investigationDetails.enmg.region})`;
+                                                }
+                                            }
+
+                                            if (inv === "Others" && investigationDetails.others) {
+                                                displayText = investigationDetails.others;
+                                                details = "";
+                                            }
+
+                                            return (
+                                                <span key={i} className="px-4 py-2 bg-slate-50 text-slate-900 rounded-xl text-[11px] font-black uppercase tracking-tight border border-slate-200 print:bg-white print:border-slate-800">
+                                                    {displayText} <span className="text-slate-500 font-medium normal-case ml-1">{details}</span>
+                                                </span>
+                                            );
+                                        }) : <span className="text-slate-300 italic text-sm">None recorded</span>}
+                                    </div>
+                                </div>
+
+                                {(treatments || otherDetails) && (
+                                    <div className="space-y-4 print:space-y-2">
+                                        <SectionTitle title="Treatment Plan" />
+
+                                        {treatments && (
+                                            <div className="p-8 bg-white border border-slate-100 rounded-3xl shadow-sm print:p-0 print:border-none print:shadow-none">
+                                                <div className="space-y-3">
+                                                    {(Array.isArray(treatments) ? treatments : []).map((medStr, idx) => {
+                                                        const parts = medStr.split('-');
+                                                        const name = parts[0] || "Unknown Medicine";
+                                                        const dose = parts[1] || "";
+                                                        const scheduleRaw = parts[2] || "[]";
+                                                        const schedule = scheduleRaw.slice(1, -1).split(',').filter(s => s.trim() !== "");
+                                                        const duration = parts[3] || "";
+                                                        const instructions = parts[4] || "";
+
+                                                        return (
+                                                            <div key={idx} className="p-4 bg-slate-50 border border-slate-100 rounded-2xl space-y-2 print:p-2 print:border-none print:bg-white print:break-inside-avoid">
+                                                                <div className="flex justify-between items-start">
+                                                                    <span className="font-extrabold text-slate-900 text-sm italic">{name}</span>
+                                                                    {dose && <span className="text-[10px] font-black bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full uppercase tracking-tighter">{dose}</span>}
+                                                                </div>
+                                                                <div className="flex flex-wrap gap-2 text-[10px] items-center">
+                                                                    {schedule.length > 0 && (
+                                                                        <div className="flex gap-1">
+                                                                            {schedule.map(s => <span key={s} className="bg-slate-200 text-slate-600 px-1.5 py-0.5 rounded-md font-bold uppercase tracking-widest">{s}</span>)}
+                                                                        </div>
+                                                                    )}
+                                                                    {duration && (
+                                                                        <span className="text-slate-400 font-bold border-l border-slate-200 pl-2">For {duration}</span>
+                                                                    )}
+                                                                </div>
+                                                                {instructions && (
+                                                                    <p className="text-[11px] text-slate-500 italic font-medium pt-1 border-t border-slate-100/50">Note: {instructions}</p>
+                                                                )}
+                                                            </div>
+                                                        );
+                                                    })}
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {otherDetails && (
+                                            <div className="p-8 bg-blue-50 border border-blue-100 rounded-3xl text-slate-700 font-medium leading-relaxed shadow-sm print:p-0 print:border-none print:shadow-none print:bg-white print:text-[13px]">
+                                                <div className="text-[10px] font-black text-blue-400 uppercase tracking-widest mb-2 print:text-slate-400">Supplemental Notes</div>
+                                                <div className="whitespace-pre-wrap">{otherDetails}</div>
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+
+                                <div className="print-footer bg-white px-10 pb-4 flex-col justify-end gap-2">
+                                    <div className="flex justify-end gap-16 mb-2 w-full">
+                                        <div className="w-40 text-center border-t border-slate-400 pt-2"><p className="text-[8px] font-black uppercase text-slate-400">Official Seal</p></div>
+                                        <div className="w-56 text-center border-t border-slate-400 pt-2"><p className="text-[8px] font-black uppercase text-slate-500">Authorized Signature</p></div>
+                                    </div>
+
+                                    <div className="flex justify-between items-center text-[10px] text-slate-400 font-mono border-t border-dashed border-slate-200 pt-2 w-full">
+                                        <span>Prana Clinical Management System</span>
+                                        <span className="font-bold text-slate-500">Page <span className="page-number"></span></span>
+                                        <span>Date of Print: {new Date().toLocaleString()}</span>
+                                    </div>
                                 </div>
                             </div>
-                        )}
-
-                        {otherDetails && (
-                            <div className="p-8 bg-blue-50 border border-blue-100 rounded-3xl text-slate-700 font-medium leading-relaxed shadow-sm print:p-0 print:border-none print:shadow-none print:bg-white print:text-[13px]">
-                                <div className="text-[10px] font-black text-blue-400 uppercase tracking-widest mb-2 print:text-slate-400">Supplemental Notes</div>
-                                <div className="whitespace-pre-wrap">{otherDetails}</div>
-                            </div>
-                        )}
-                    </div>
-                )}
-
-                <div className="print-footer bg-white px-10 pb-4 flex-col justify-end gap-2">
-                    <div className="flex justify-end gap-16 mb-2 w-full">
-                        <div className="w-40 text-center border-t border-slate-400 pt-2"><p className="text-[8px] font-black uppercase text-slate-400">Official Seal</p></div>
-                        <div className="w-56 text-center border-t border-slate-400 pt-2"><p className="text-[8px] font-black uppercase text-slate-500">Authorized Signature</p></div>
-                    </div>
-
-                    <div className="flex justify-between items-center text-[10px] text-slate-400 font-mono border-t border-dashed border-slate-200 pt-2 w-full">
-                        <span>Prana Clinical Management System</span>
-                        <span className="font-bold text-slate-500">Page <span className="page-number"></span></span>
-                        <span>Date of Print: {new Date().toLocaleString()}</span>
-                    </div>
-                </div>
-            </div>
+                        </td>
+                    </tr>
+                </tbody>
+                <tfoot className="hidden print:table-footer-group">
+                    <tr><td><div className="h-[110px]" /></td></tr>
+                </tfoot>
+            </table>
 
             {!isVersionView && (
                 <div className="p-8 bg-slate-50 border-t border-slate-100 flex flex-wrap gap-3 print:hidden">

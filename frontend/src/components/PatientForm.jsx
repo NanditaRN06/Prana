@@ -26,10 +26,22 @@ const PatientForm = ({ initialData = {}, mode = "create", onSubmit }) => {
             const daysCount = daysParts[0] || "";
             const daysUnit = daysParts[1] || "Days";
 
+            let dose = (parts[1] || "").trim();
+            let doseUnit = "mg";
+            const suffixes = ["mg/mL", "mg/kg", "mg", "mcd", "gm"];
+            for (const suffix of suffixes) {
+                if (dose.endsWith(suffix)) {
+                    doseUnit = suffix;
+                    dose = dose.slice(0, -suffix.length).trim();
+                    break;
+                }
+            }
+
             return {
                 id: Date.now() + index,
                 name: parts[0] || "",
-                dose: parts[1] || "",
+                dose,
+                doseUnit,
                 schedule,
                 daysCount,
                 daysUnit,
@@ -95,7 +107,7 @@ const PatientForm = ({ initialData = {}, mode = "create", onSubmit }) => {
         enmg: { region: "" }
     });
 
-    const [othersInput, setOthersInput] = useState(""); // Separate input field for Others
+    const [othersInput, setOthersInput] = useState("");
 
     const [hasChanges, setHasChanges] = useState(false);
 
@@ -167,7 +179,7 @@ const PatientForm = ({ initialData = {}, mode = "create", onSubmit }) => {
 
     const addMedicine = () => {
         if (mode === 'edit') setHasChanges(true);
-        setMedicines([...medicines, { id: Date.now(), name: "", dose: "", schedule: [], daysCount: "", daysUnit: "Days", instructions: "" }]);
+        setMedicines([...medicines, { id: Date.now(), name: "", dose: "", doseUnit: "mg", schedule: [], daysCount: "", daysUnit: "Days", instructions: "" }]);
     };
     const removeMedicine = (index) => {
         if (mode === 'edit') setHasChanges(true);
@@ -274,9 +286,10 @@ const PatientForm = ({ initialData = {}, mode = "create", onSubmit }) => {
             return;
         }
 
-        const medicinesFormatted = medicines.map(m =>
-            `${m.name}-${m.dose}-[${m.schedule.join(",")}]-${m.daysCount} ${m.daysUnit}-${m.instructions}`
-        );
+        const medicinesFormatted = medicines.map(m => {
+            const doseCombined = `${m.dose} ${m.doseUnit}`.trim();
+            return `${m.name}-${doseCombined}-[${m.schedule.join(",")}]-${m.daysCount} ${m.daysUnit}-${m.instructions}`;
+        });
 
         const cleanInvestigationDetails = {
             mri: investigationDetails.mri.map(({ id, ...rest }) => rest),
@@ -501,7 +514,20 @@ const PatientForm = ({ initialData = {}, mode = "create", onSubmit }) => {
                                             </div>
                                             <div className="space-y-1">
                                                 <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Dosage</label>
-                                                <input type="text" className="w-full p-3 bg-slate-50 rounded-xl font-bold" value={med.dose} onChange={(e) => updateMedicine(idx, "dose", e.target.value)} required />
+                                                <div className="flex bg-slate-50 rounded-xl overflow-hidden focus-within:ring-2 focus-within:ring-blue-100">
+                                                    <input type="number" className="w-full p-3 bg-transparent font-bold focus:outline-none" value={med.dose} onChange={(e) => updateMedicine(idx, "dose", e.target.value)} required />
+                                                    <select
+                                                        className="p-3 bg-slate-100 font-bold text-xs border-l border-slate-200 outline-none cursor-pointer"
+                                                        value={med.doseUnit || "mg"}
+                                                        onChange={(e) => updateMedicine(idx, "doseUnit", e.target.value)}
+                                                    >
+                                                        <option value="mg">mg</option>
+                                                        <option value="mcd">mcd</option>
+                                                        <option value="gm">gm</option>
+                                                        <option value="mg/mL">mg/mL</option>
+                                                        <option value="mg/kg">mg/kg</option>
+                                                    </select>
+                                                </div>
                                             </div>
                                         </div>
                                         <div className="flex flex-wrap items-end gap-2">
@@ -516,7 +542,7 @@ const PatientForm = ({ initialData = {}, mode = "create", onSubmit }) => {
                                             <div className="space-y-1 w-36 flex gap-2 items-end">
                                                 <div className="flex-1">
                                                     <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Days</label>
-                                                    <input type="number" className="w-full p-2 bg-slate-50 rounded-xl font-bold text-center" value={med.daysCount} onChange={(e) => updateMedicine(idx, "daysCount", e.target.value)} required />
+                                                    <input type="number" min={0} className="w-full p-2 bg-slate-50 rounded-xl font-bold text-center" value={med.daysCount} onChange={(e) => updateMedicine(idx, "daysCount", e.target.value)} required />
                                                 </div>
                                                 <select
                                                     className="p-2 bg-slate-50 rounded-xl font-bold text-[10px] mb-[1px] border border-transparent focus:border-blue-200 outline-none"

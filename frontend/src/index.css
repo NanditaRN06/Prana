@@ -82,8 +82,7 @@ body {
   }
 
   .print-content {
-    margin-top: 190px;
-    margin-bottom: 110px;
+    /* Flow natively through table-header-group offset */
   }
 
   .page-number:after {

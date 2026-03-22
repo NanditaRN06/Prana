@@ -8,7 +8,13 @@ const nodemailer = require('nodemailer');
 const fs = require('fs');
 const path = require('path');
 
-const JWT_SECRET = process.env.JWT_SECRET || "jwt_secret_key";
+const JWT_SECRET = process.env.JWT_SECRET;
+
+if (!JWT_SECRET) {
+    console.error("FATAL ERROR: JWT_SECRET is not defined in environment variables. Application cannot start securely.");
+    process.exit(1);
+}
+
 const FE_URL = process.env.FE_URL || "http://localhost:5173";
 
 exports.signup = async (req, res) => {
@@ -49,7 +55,11 @@ exports.login = async (req, res) => {
             { id: foundUser._id, username: foundUser.username, email: foundUser.email, role: foundUser.role },
             JWT_SECRET, { expiresIn: '12h' }
         );
-        res.cookie('token', logintoken, { httpOnly: true, secure: process.env.NODE_ENV === 'production' });
+        res.cookie('token', logintoken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            maxAge: 12 * 60 * 60 * 1000
+        });
         res.json({ message: "Login successful.", authenticated: true });
     } catch (err) {
         console.error(err);
@@ -137,14 +147,30 @@ exports.resetPasswordAction = async (req, res) => {
 };
 
 exports.newEntry = (req, res) => {
-    const patientData = { ...req.body, userId: req.user.id };
+    // Explicitly destructure allowed fields to prevent arbitrary data injection
+    const {
+        name, age, phone, address, examdate, comorbidities, comorbidityData,
+        allergies, allergyDetails, currentMedications, clinicalDiagnosis,
+        chiefComplaints, examination, treatments, otherDetails, investigations,
+        investigationDetails
+    } = req.body;
+
+    const patientData = {
+        name, age, phone, address, examdate, comorbidities, comorbidityData,
+        allergies, allergyDetails, currentMedications, clinicalDiagnosis,
+        chiefComplaints, examination, treatments, otherDetails, investigations,
+        investigationDetails,
+        userId: req.user.id
+    };
+
     const newPatient = new Patient(patientData);
 
     newPatient.save()
         .then(() => res.status(201).json({ message: 'Patient clinical record successfully archived.' }))
         .catch((err) => {
-            console.error('Error saving patient data:', err);
-            res.status(500).json({ message: 'Error archiving patient data', error: err.message });
+            console.error('Error saving patient data:', err); // Log details to the server
+            // Do not leak err.message to the client
+            res.status(500).json({ message: 'Error archiving patient data. Please try again.' });
         });
 };
 
@@ -169,7 +195,21 @@ exports.getPatient = async (req, res) => {
 
 exports.updatePatient = async (req, res) => {
     const { patientId } = req.params;
-    const updatedData = req.body;
+
+    // Explicitly pick allowed fields from the request body
+    const allowedFields = [
+        'name', 'age', 'phone', 'address', 'examdate', 'comorbidities',
+        'comorbidityData', 'allergies', 'allergyDetails', 'currentMedications',
+        'clinicalDiagnosis', 'chiefComplaints', 'examination', 'treatments',
+        'otherDetails', 'investigations', 'investigationDetails'
+    ];
+
+    const updatedData = {};
+    for (const key of allowedFields) {
+        if (req.body[key] !== undefined) {
+            updatedData[key] = req.body[key];
+        }
+    }
 
     try {
         const currentPatient = await Patient.findOne({ name: patientId, userId: req.user.id });
