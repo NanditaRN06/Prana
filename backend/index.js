@@ -49,6 +49,10 @@ mongoose.connect(mongoURI)
 const PORT = process.env.PORT || 9000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
+app.get('/', (req, res) => {
+    res.send("Prana Backend Server is Live and Running!");
+});
+
 app.post('/signup', authLimiter, controllers.signup);
 app.post('/login', authLimiter, controllers.login);
 app.post('/forgot-password', rateLimit({
