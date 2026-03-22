@@ -35,6 +35,9 @@ const App = () => {
 			if (authStatus) fetchUsername();
 		};
 		checkAuth();
+
+		// Silent ping to wake up the Render backend from sleep mode
+		axios.get(`${import.meta.env.VITE_API_URL}/`).catch(() => { });
 	}, []);
 
 	const handleLogout = async () => {
