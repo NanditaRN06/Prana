@@ -19,6 +19,10 @@ app.use(cors({
 
 app.use(helmet());
 
+// Trust the reverse proxy when deploying to Render/Vercel
+// This prevents the express-rate-limit 'X-Forwarded-For' ValidationError
+app.set('trust proxy', 1);
+
 const generalLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
     max: 100,
