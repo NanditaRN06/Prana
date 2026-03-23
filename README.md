@@ -1,7 +1,5 @@
 # Prana Clinical Management System
 
-**Vercel Link:** [Link Space - Insert URL Here]()
-
 ## Aim
 The primary aim of Prana is to digitize and streamline the clinical workflow for healthcare professionals. It provides a secure, reliable, and user-friendly interface to formally document patient history, clinical findings, investigations, and treatment plans for easy retrieval and automated prescription printing.
 
@@ -13,9 +11,6 @@ Prana is a modern Clinical Management System designed with a focus on simplicity
 Prana/
 |-- backend/
 |   |-- models/
-|   |   |-- Patient.js
-|   |   |-- User.js
-|   |   |-- resetPassword.html
 |   |-- apiControllers.js
 |   |-- apiRoutes.js
 |   |-- index.js
@@ -27,6 +22,7 @@ Prana/
 |   |-- src/
 |   |   |-- components/
 |   |   |-- utils/
+|   |   |-- App.jsx
 |   |   |-- index.css
 |   |   |-- main.jsx
 |   |-- package.json
@@ -46,7 +42,7 @@ Follow these steps to set up and run the application on your local machine.
 
 ### 1. Clone the Repository
 ```bash
-git clone <repository-url>
+git clone https://github.com/NanditaRN06/Prana
 cd Prana
 ```
 
@@ -57,7 +53,6 @@ Inside the `backend/` directory, create a `.env` file and add the following conf
 PORT=<your-backend-port-number>
 MONGODB_URI=<your-mongodb-uri>
 JWT_SECRET=<your-jwt-secret-string>
-FE_URL=<your-frontend-url>
 EMAIL_USER=<your-email-address>
 EMAIL_PASS=<your-app-password>
 ```
