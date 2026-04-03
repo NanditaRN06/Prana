@@ -33,7 +33,7 @@ router.get("/account", verifyUser, async (req, res) => {
 });
 
 router.put("/account", verifyUser, async (req, res) => {
-    const { fullName, email, phoneNumber } = req.body;
+    const { fullName, email, phoneNumber, kmcNumber } = req.body;
 
     try {
         const user = await User.findById(req.user.id);
@@ -41,17 +41,28 @@ router.put("/account", verifyUser, async (req, res) => {
 
         user.fullName = req.body.fullName !== undefined ? req.body.fullName : user.fullName;
         user.email = req.body.email !== undefined ? req.body.email : user.email;
-        // username is immutable after account creation and is never updated here
+
         if (req.body.phoneNumber === "") {
             user.phoneNumber = undefined;
         } else if (req.body.phoneNumber !== undefined) {
             user.phoneNumber = req.body.phoneNumber;
         }
+
         user.department = req.body.department !== undefined ? req.body.department : user.department;
         user.position = req.body.position !== undefined ? req.body.position : user.position;
         user.qualifications = req.body.qualifications !== undefined ? req.body.qualifications : user.qualifications;
         user.consultationAddress = req.body.consultationAddress !== undefined ? req.body.consultationAddress : user.consultationAddress;
         user.consultationHospital = req.body.consultationHospital !== undefined ? req.body.consultationHospital : user.consultationHospital;
+
+        if (req.body.kmcNumber === "") {
+            user.kmcNumber = undefined;
+        } else if (req.body.kmcNumber !== undefined) {
+            const existingKmc = await User.findOne({ kmcNumber: req.body.kmcNumber, _id: { $ne: req.user.id } });
+            if (existingKmc) {
+                return res.status(400).json({ message: "This KMC Number is already registered to another user." });
+            }
+            user.kmcNumber = req.body.kmcNumber;
+        }
 
         await user.save();
         res.json({ message: "Profile updated successfully", user });
