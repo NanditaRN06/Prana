@@ -44,12 +44,13 @@ export function Patient() {
             return;
         }
 
-        const { department, position, qualifications, consultationAddress, consultationHospital } = doctorProfile;
+        const { department, position, qualifications, consultationAddress, consultationHospital, kmcNumber } = doctorProfile;
         const missingFields = [];
 
         if (!department) missingFields.push("Department");
         if (!position) missingFields.push("Position");
         if (!qualifications || qualifications.length === 0) missingFields.push("Qualifications");
+        if (!kmcNumber) missingFields.push("KMC Number");
 
         if (missingFields.length > 0) {
             toast.error((t) => (
@@ -216,6 +217,7 @@ const PatientView = ({ data, doctorProfile, handlePrint, handleDelete, navigate,
                                     <h2 className="text-sm font-black text-slate-800 uppercase tracking-widest">{doctorProfile.position}</h2>
                                     <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider mt-1">{doctorProfile.department}</h3>
                                     {doctorProfile.consultationHospital && <p className="text-[10px] font-bold text-slate-400 uppercase mt-2">{doctorProfile.consultationHospital}</p>}
+                                    {doctorProfile.kmcNumber && <p className="text-[10px] font-bold text-slate-400 uppercase mt-1">KMC: {doctorProfile.kmcNumber}</p>}
                                 </div>
                             </div>
 

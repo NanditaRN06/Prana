@@ -11,6 +11,56 @@ const DURATION_OPTIONS = [
 ];
 const INVESTIGATION_OPTIONS = ["CBC", "HBA1C", "Lipid Profile", "FBS", "PPBS", "MRI", "CT", "EEG", "ENMG", "TSH", "USG Abdomen", "Others"];
 
+const MEDICINE_TYPES = [
+    { val: "Cap", label: "Cap - Capsule", full: "Capsule" },
+    { val: "Tab", label: "Tab - Tablet", full: "Tablet" },
+    { val: "Syr", label: "Syr - Syrup", full: "Syrup" },
+    { val: "Oin", label: "Oin - Ointment", full: "Ointment" },
+    { val: "Gel", label: "Gel - Gel", full: "Gel" },
+    { val: "Inj", label: "Inj - Injection", full: "Injection" },
+    { val: "Str", label: "Str - Strip", full: "Strip" },
+    { val: "Sac", label: "Sac - Sachet", full: "Sachet" }
+];
+
+const MedTypeDropdown = ({ value, onChange }) => {
+    const [open, setOpen] = React.useState(false);
+    const displayItem = MEDICINE_TYPES.find(t => t.val === value) || MEDICINE_TYPES[1];
+
+    React.useEffect(() => {
+        const handleClickOutside = () => setOpen(false);
+        if (open) {
+            setTimeout(() => document.addEventListener('click', handleClickOutside), 0);
+        }
+        return () => document.removeEventListener('click', handleClickOutside);
+    }, [open]);
+
+    return (
+        <div className="relative flex-shrink-0 border-r border-slate-200 bg-slate-100 w-[60px] rounded-l-xl" onClick={e => e.stopPropagation()}>
+            <button
+                type="button"
+                className="w-full h-full p-3 font-bold text-xs outline-none text-left flex items-center justify-between hover:bg-slate-200 transition-colors"
+                title={displayItem.full}
+                onClick={() => setOpen(!open)}
+            >
+                {displayItem.val} <span className="text-[8px] opacity-50">▾</span>
+            </button>
+            {open && (
+                <div className="absolute top-full left-0 mt-1 bg-white border border-slate-200 rounded-lg shadow-xl z-[100] w-40 overflow-hidden py-1">
+                    {MEDICINE_TYPES.map(t => (
+                        <div
+                            key={t.val}
+                            className="px-4 py-2 text-xs font-bold hover:bg-blue-50 cursor-pointer text-slate-700"
+                            onClick={() => { onChange(t.val); setOpen(false); }}
+                        >
+                            {t.label}
+                        </div>
+                    ))}
+                </div>
+            )}
+        </div>
+    );
+};
+
 const PatientForm = ({ initialData = {}, mode = "create", onSubmit }) => {
     const navigate = useNavigate();
 
@@ -37,9 +87,19 @@ const PatientForm = ({ initialData = {}, mode = "create", onSubmit }) => {
                 }
             }
 
+            let type = "Tab";
+            let name = parts[0] || "";
+            const knownTypes = ["Cap", "Tab", "Syr", "Oin", "Gel", "Inj", "Str", "Sac"];
+            const words = name.trim().split(" ");
+            if (words.length > 0 && knownTypes.includes(words[0])) {
+                type = words[0];
+                name = words.slice(1).join(" ");
+            }
+
             return {
                 id: Date.now() + index,
-                name: parts[0] || "",
+                type,
+                name,
                 dose,
                 doseUnit,
                 schedule,
@@ -179,7 +239,7 @@ const PatientForm = ({ initialData = {}, mode = "create", onSubmit }) => {
 
     const addMedicine = () => {
         if (mode === 'edit') setHasChanges(true);
-        setMedicines([...medicines, { id: Date.now(), name: "", dose: "", doseUnit: "mg", schedule: [], daysCount: "", daysUnit: "Days", instructions: "" }]);
+        setMedicines([...medicines, { id: Date.now(), type: "Tab", name: "", dose: "", doseUnit: "mg", schedule: [], daysCount: "", daysUnit: "Days", instructions: "" }]);
     };
     const removeMedicine = (index) => {
         if (mode === 'edit') setHasChanges(true);
@@ -288,7 +348,7 @@ const PatientForm = ({ initialData = {}, mode = "create", onSubmit }) => {
 
         const medicinesFormatted = medicines.map(m => {
             const doseCombined = `${m.dose} ${m.doseUnit}`.trim();
-            return `${m.name}-${doseCombined}-[${m.schedule.join(",")}]-${m.daysCount} ${m.daysUnit}-${m.instructions}`;
+            return `${m.type} ${m.name}-${doseCombined}-[${m.schedule.join(",")}]-${m.daysCount} ${m.daysUnit}-${m.instructions}`;
         });
 
         const cleanInvestigationDetails = {
@@ -505,12 +565,15 @@ const PatientForm = ({ initialData = {}, mode = "create", onSubmit }) => {
                         {showMedicines && (
                             <div className="space-y-6 bg-slate-50 p-8 rounded-[2rem] border border-slate-100">
                                 {medicines.map((med, idx) => (
-                                    <div key={med.id} className="bg-white p-6 rounded-2xl shadow-sm space-y-5 border border-slate-100 relative">
+                                    <div key={med.id} className="bg-white p-6 rounded-2xl shadow-sm space-y-5 border border-slate-100 relative" style={{ zIndex: 100 - idx }}>
                                         <button type="button" onClick={() => removeMedicine(idx)} className="absolute top-4 right-4 text-slate-300 hover:text-red-500">✕</button>
                                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                             <div className="space-y-1">
                                                 <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Medicine Name</label>
-                                                <input type="text" className="w-full p-3 bg-slate-50 rounded-xl font-bold" value={med.name} onChange={(e) => updateMedicine(idx, "name", e.target.value)} required />
+                                                <div className="flex bg-slate-50 rounded-xl focus-within:ring-2 focus-within:ring-blue-100">
+                                                    <MedTypeDropdown value={med.type || "Tab"} onChange={(val) => updateMedicine(idx, "type", val)} />
+                                                    <input type="text" className="w-full p-3 bg-transparent font-bold focus:outline-none" value={med.name} onChange={(e) => updateMedicine(idx, "name", e.target.value)} required />
+                                                </div>
                                             </div>
                                             <div className="space-y-1">
                                                 <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Dosage</label>

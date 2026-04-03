@@ -20,6 +20,7 @@ function ProfilePage() {
     const [qualifications, setQualifications] = useState([]);
     const [consultationAddress, setConsultationAddress] = useState("");
     const [consultationHospital, setConsultationHospital] = useState("");
+    const [kmcNumber, setKmcNumber] = useState("");
 
     const navigate = useNavigate();
 
@@ -50,6 +51,7 @@ function ProfilePage() {
                 setQualifications(data.qualifications || []);
                 setConsultationAddress(data.consultationAddress || "");
                 setConsultationHospital(data.consultationHospital || "");
+                setKmcNumber(data.kmcNumber || "");
                 setLoading(false);
             })
             .catch((error) => {
@@ -69,7 +71,8 @@ function ProfilePage() {
             position,
             qualifications: qualifications.filter(q => q.trim() !== ""),
             consultationAddress,
-            consultationHospital
+            consultationHospital,
+            kmcNumber: kmcNumber.trim()
         };
         const saveToast = toast.loading("Updating your profile...");
 
@@ -193,6 +196,7 @@ function ProfilePage() {
                                 <ProfileItem label="Qualifications" value={userData.qualifications?.length ? userData.qualifications.join(", ") : "None listed"} />
                                 <ProfileItem label="Consultation Hospital" value={userData.consultationHospital || "Not specified"} />
                                 <ProfileItem label="Phone Number" value={userData.phoneNumber || "Not registered"} />
+                                <ProfileItem label="KMC Number" value={userData.kmcNumber || "Not specified"} />
                                 <ProfileItem label="Consultation Address" value={userData.consultationAddress || "Not specified"} fullWidth />
                             </div>
 
@@ -252,6 +256,13 @@ function ProfilePage() {
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <InputItem label="Department" value={department} onChange={setDepartment} placeholder="ex: Neurology" />
                                     <InputItem label="Position" value={position} onChange={setPosition} placeholder="ex: Associate Professor" />
+                                    <InputItem
+                                        label="Karnataka Medical Council Number"
+                                        value={kmcNumber}
+                                        onChange={(val) => setKmcNumber(val.replace(/\D/g, ''))}
+                                        placeholder="KMC Number"
+                                        pattern="\d*"
+                                    />
                                 </div>
                                 <div className="mt-4">
                                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 block mb-2">Qualifications</label>

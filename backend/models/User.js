@@ -14,7 +14,8 @@ const signupSchema = new mongoose.Schema({
     position: { type: String, default: "" },
     qualifications: { type: [String], default: [] },
     consultationAddress: { type: String, default: "" },
-    consultationHospital: { type: String, default: "" }
+    consultationHospital: { type: String, default: "" },
+    kmcNumber: { type: String, unique: true, sparse: true }
 });
 
 module.exports = mongoose.model("members", signupSchema);
