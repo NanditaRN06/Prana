@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { login } from '../../services/authService';
 import { toast } from 'react-hot-toast';
 
 const Login = ({ onLoginSuccess }) => {
@@ -10,27 +10,25 @@ const Login = ({ onLoginSuccess }) => {
     const [redirect, setRedirect] = useState(false);
     const navigate = useNavigate();
 
-    const handleFormSubmission = (e) => {
+    const handleFormSubmission = async (e) => {
         e.preventDefault();
         const loadToast = toast.loading("Checking login details...");
 
-        axios.defaults.withCredentials = true;
-        axios.post(`${import.meta.env.VITE_API_URL}/login`, formData)
-            .then((res) => {
-                if (res.data.authenticated) {
-                    window.localStorage.setItem("isLoggedIn", true);
-                    window.localStorage.setItem("username", formData.username);
-                    toast.success("Login successful. Welcome back!", { id: loadToast });
-                    onLoginSuccess();
-                    setRedirect(true);
-                } else {
-                    toast.error(res.data.message || "Access denied.", { id: loadToast });
-                }
-            })
-            .catch((err) => {
-                const errMsg = err.response?.data?.message || "Internal authentication error.";
-                toast.error(errMsg, { id: loadToast });
-            });
+        try {
+            const data = await login(formData);
+            if (data.authenticated) {
+                window.localStorage.setItem("isLoggedIn", true);
+                window.localStorage.setItem("username", formData.username);
+                toast.success("Login successful. Welcome back!", { id: loadToast });
+                onLoginSuccess();
+                setRedirect(true);
+            } else {
+                toast.error(data.message || "Access denied.", { id: loadToast });
+            }
+        } catch (err) {
+            const errMsg = err.response?.data?.message || "Internal authentication error.";
+            toast.error(errMsg, { id: loadToast });
+        }
     };
 
     const handleInputChange = (e) => {

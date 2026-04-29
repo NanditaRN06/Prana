@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from 'react-router-dom';
 import { toast } from "react-hot-toast";
-import axios from "axios";
+import { getAccount, updateAccount, deleteAccount, deactivateAccount } from "../services/authService";
 
 function ProfilePage() {
     const [userData, setUserData] = useState(null);
@@ -31,9 +31,8 @@ function ProfilePage() {
             return;
         }
 
-        axios.get(`${import.meta.env.VITE_API_URL}/api/account`, { withCredentials: true })
-            .then((response) => {
-                const data = response.data;
+        getAccount()
+            .then((data) => {
                 setUserData(data);
                 setFullName(data.fullName || "");
                 setEmail(data.email || "");
@@ -76,7 +75,7 @@ function ProfilePage() {
         };
         const saveToast = toast.loading("Updating your profile...");
 
-        axios.put(`${import.meta.env.VITE_API_URL}/api/account`, updatedData, { withCredentials: true })
+        updateAccount(updatedData)
             .then(() => {
                 toast.success("Profile saved.", { id: saveToast });
                 setUserData(prev => ({ ...prev, ...updatedData }));
@@ -116,8 +115,8 @@ function ProfilePage() {
 
     const performDeactivate = () => {
         const delToast = toast.loading("Deactivating your account...");
-        axios.post(`${import.meta.env.VITE_API_URL}/api/deactivate`, {}, { withCredentials: true })
-            .then((response) => {
+        deactivateAccount()
+            .then(() => {
                 toast.success("Account successfully deactivated.", { id: delToast });
                 window.localStorage.removeItem("isLoggedIn");
                 document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
@@ -157,8 +156,8 @@ function ProfilePage() {
 
     const performDelete = () => {
         const delToast = toast.loading("Deleting your account...");
-        axios.delete(`${import.meta.env.VITE_API_URL}/api/account`, { withCredentials: true })
-            .then((response) => {
+        deleteAccount()
+            .then(() => {
                 toast.success("Account deleted.", { id: delToast });
                 window.localStorage.removeItem("isLoggedIn");
                 document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";

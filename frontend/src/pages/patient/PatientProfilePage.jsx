@@ -2,10 +2,11 @@
 
 import React, { useState, useEffect } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
-import axios from "axios";
+import { getPatient, deletePatient, updatePatient } from "../../services/patientService";
+import { getAccount } from "../../services/authService";
 import { toast } from "react-hot-toast";
 import { FaPrint, FaEdit, FaTrash, FaCheck, FaHistory, FaTimes, FaPhone, FaMapMarkerAlt, FaFileMedical } from 'react-icons/fa';
-import PatientForm from "./PatientForm";
+import PatientForm from "../../components/patient/PatientForm";
 
 export function Patient() {
     const { patientId } = useParams();
@@ -20,13 +21,13 @@ export function Patient() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const [patientRes, accountRes] = await Promise.all([
-                    axios.get(`${import.meta.env.VITE_API_URL}/patient/${encodeURIComponent(patientId)}`, { withCredentials: true }),
-                    axios.get(`${import.meta.env.VITE_API_URL}/api/account`, { withCredentials: true })
+                const [patientDataRes, doctorProfileRes] = await Promise.all([
+                    getPatient(encodeURIComponent(patientId)),
+                    getAccount()
                 ]);
 
-                setPatientData(patientRes.data);
-                setDoctorProfile(accountRes.data);
+                setPatientData(patientDataRes);
+                setDoctorProfile(doctorProfileRes);
                 setLoading(false);
             } catch (error) {
                 console.error("Error fetching data:", error);
@@ -44,7 +45,7 @@ export function Patient() {
             return;
         }
 
-        const { department, position, qualifications, consultationAddress, consultationHospital, kmcNumber } = doctorProfile;
+        const { department, position, qualifications, kmcNumber } = doctorProfile;
         const missingFields = [];
 
         if (!department) missingFields.push("Department");
@@ -85,7 +86,7 @@ export function Patient() {
     };
 
     const handleDelete = () => {
-        const deleteToast = toast((t) => (
+        toast((t) => (
             <div className="flex flex-col gap-3">
                 <p className="font-bold text-slate-800">Confirm Deletion</p>
                 <p className="text-sm text-slate-600">Are you sure you want to permanently delete this patient record? This action is irreversible.</p>
@@ -97,14 +98,15 @@ export function Patient() {
         ), { duration: 6000 });
     };
 
-    const performDelete = () => {
+    const performDelete = async () => {
         const loadToast = toast.loading("Removing patient record...");
-        axios.delete(`${import.meta.env.VITE_API_URL}/patient/${encodeURIComponent(patientData.name)}`, { withCredentials: true })
-            .then(() => {
-                toast.success("Patient record successfully removed.", { id: loadToast });
-                navigate("/home");
-            })
-            .catch(() => toast.error("An error occurred during deletion.", { id: loadToast }));
+        try {
+            await deletePatient(encodeURIComponent(patientData.name));
+            toast.success("Patient record successfully removed.", { id: loadToast });
+            navigate("/home");
+        } catch (err) {
+            toast.error("An error occurred during deletion.", { id: loadToast });
+        }
     };
 
     if (loading) return <div className="flex justify-center py-20 animate-pulse text-slate-300 font-bold uppercase tracking-widest text-xs">Accessing Registry...</div>;
@@ -441,14 +443,15 @@ export function Update() {
     const navigate = useNavigate();
     const patientData = location.state || {};
 
-    const handleUpdate = (submissionData) => {
+    const handleUpdate = async (submissionData) => {
         const loadToast = toast.loading("Updating patient information...");
-        axios.put(`${import.meta.env.VITE_API_URL}/update/${encodeURIComponent(patientData.name)}`, submissionData, { withCredentials: true })
-            .then(() => {
-                toast.success("Patient information updated.", { id: loadToast });
-                navigate(`/patient/${submissionData.name}`);
-            })
-            .catch(() => toast.error("Failed to update information.", { id: loadToast }));
+        try {
+            await updatePatient(encodeURIComponent(patientData.name), submissionData);
+            toast.success("Patient information updated.", { id: loadToast });
+            navigate(`/patient/${submissionData.name}`);
+        } catch (err) {
+            toast.error("Failed to update information.", { id: loadToast });
+        }
     };
 
     return <PatientForm initialData={patientData} mode="edit" onSubmit={handleUpdate} />;
