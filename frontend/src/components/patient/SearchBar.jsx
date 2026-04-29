@@ -11,9 +11,18 @@ const SearchBar = () => {
     const [rerouteTo, setRerouteTo] = useState(false);
     const [nameofPerson, setNameofPerson] = useState("");
 
+    const [debouncedQuery, setDebouncedQuery] = useState("");
+
     const handleInputChange = (e) => {
         setInputChange(e.target.value);
     };
+
+    useEffect(() => {
+        const timeoutId = setTimeout(() => {
+            handleSearches(inputChange);
+        }, 300); // 300ms debounce
+        return () => clearTimeout(timeoutId);
+    }, [inputChange]);
 
     const handleSearches = async (value) => {
         if (value.trim()) {
