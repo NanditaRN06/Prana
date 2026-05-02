@@ -1,6 +1,6 @@
 // frontend/components/PatientForm.jsx
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 
@@ -150,16 +150,16 @@ const PatientForm = ({ initialData = {}, mode = "create", onSubmit }) => {
     const [previousComorbidities, setPreviousComorbidities] = useState([]);
     const [customComorbidity, setCustomComorbidity] = useState({ name: "", duration: "" });
 
-    const [medicines, setMedicines] = useState(parseTreatments(initialData.treatments));
+    const [medicines, setMedicines] = useState(() => parseTreatments(initialData.treatments));
     const [showMedicines, setShowMedicines] = useState(medicines.length > 0);
     const [showOtherTreatment, setShowOtherTreatment] = useState(!!initialData.otherDetails);
     const [selectedInvestigations, setSelectedInvestigations] = useState(initialData.investigations || []);
-    const [investigationDetails, setInvestigationDetails] = useState({
+    const [investigationDetails, setInvestigationDetails] = useState(() => ({
         mri: parseInvestigationDetails(initialData.investigationDetails, 'mri'),
         ct: parseInvestigationDetails(initialData.investigationDetails, 'ct'),
         enmg: parseInvestigationDetails(initialData.investigationDetails, 'enmg'),
         others: initialData.investigationDetails?.others || ""
-    });
+    }));
 
     const [newInvestigationInput, setNewInvestigationInput] = useState({
         mri: { region: "" },
@@ -295,13 +295,7 @@ const PatientForm = ({ initialData = {}, mode = "create", onSubmit }) => {
         }
     };
 
-    const removeInvestigationItem = (type, id) => {
-        if (mode === 'edit') setHasChanges(true);
-        setInvestigationDetails(prev => ({
-            ...prev,
-            [type]: prev[type].filter(item => item.id !== id)
-        }));
-    };
+
 
     const addOtherInvestigation = (e) => {
         if (e.key === "Enter" && othersInput.trim()) {
@@ -352,9 +346,9 @@ const PatientForm = ({ initialData = {}, mode = "create", onSubmit }) => {
         });
 
         const cleanInvestigationDetails = {
-            mri: investigationDetails.mri.map(({ id, ...rest }) => rest),
-            ct: investigationDetails.ct.map(({ id, ...rest }) => rest),
-            enmg: investigationDetails.enmg.map(({ id, ...rest }) => rest),
+            mri: investigationDetails.mri.map(item => { const rest = { ...item }; delete rest.id; return rest; }),
+            ct: investigationDetails.ct.map(item => { const rest = { ...item }; delete rest.id; return rest; }),
+            enmg: investigationDetails.enmg.map(item => { const rest = { ...item }; delete rest.id; return rest; }),
             others: investigationDetails.others || ""
         };
 

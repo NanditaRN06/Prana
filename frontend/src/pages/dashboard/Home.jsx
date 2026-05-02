@@ -1,27 +1,26 @@
 // frontend/components/Home.jsx
 
 import { useState, useEffect } from "react";
-import SearchBar from "./SearchBar";
+import SearchBar from "../../components/patient/SearchBar";
 import { Link, useNavigate } from "react-router-dom";
 import { FaUser, FaUserPlus, FaSignOutAlt } from 'react-icons/fa';
-import { logout } from '../utils/auth';
+import { logout } from '../../utils/auth';
 import { toast } from "react-hot-toast";
-import axios from "axios";
+import { getAccount } from "../../services/authService";
 
 const HomePage = () => {
     const [name, setName] = useState(null);
     const navigate = useNavigate();
 
-    const fetchUsername = async () => {
-        try {
-            const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/account`, { withCredentials: true });
-            setName(response.data.fullName);
-        } catch (error) {
-            console.error("Error fetching user data:", error.response || error.message);
-        }
-    };
-
     useEffect(() => {
+        const fetchUsername = async () => {
+            try {
+                const data = await getAccount();
+                setName(data.fullName);
+            } catch (error) {
+                console.error("Error fetching user data:", error.response || error.message);
+            }
+        };
         fetchUsername();
     }, []);
 

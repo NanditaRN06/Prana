@@ -1,9 +1,9 @@
 // frontend/components/SearchBar.jsx
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Navigate } from "react-router-dom";
 import { FaSearch, FaChevronRight } from 'react-icons/fa';
-import axios from "axios";
+import { searchPatients } from "../../services/patientService";
 
 const SearchBar = () => {
     const [inputChange, setInputChange] = useState("");
@@ -11,17 +11,24 @@ const SearchBar = () => {
     const [rerouteTo, setRerouteTo] = useState(false);
     const [nameofPerson, setNameofPerson] = useState("");
 
+    const [debouncedQuery, setDebouncedQuery] = useState("");
+
     const handleInputChange = (e) => {
-        const value = e.target.value;
-        setInputChange(value);
-        handleSearches(value);
+        setInputChange(e.target.value);
     };
+
+    useEffect(() => {
+        const timeoutId = setTimeout(() => {
+            handleSearches(inputChange);
+        }, 300); // 300ms debounce
+        return () => clearTimeout(timeoutId);
+    }, [inputChange]);
 
     const handleSearches = async (value) => {
         if (value.trim()) {
             try {
-                const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/search-patients?query=${encodeURIComponent(value)}`, { withCredentials: true });
-                setSearchResults(response.data);
+                const data = await searchPatients(value);
+                setSearchResults(data);
             } catch (error) {
                 console.error("Error searching patients:", error.message);
             }

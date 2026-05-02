@@ -1,20 +1,18 @@
 // frontend/utils/auth.js
 
-import axios from 'axios';
-
-const API_BASE_URL = `${import.meta.env.VITE_API_URL}`;
+import apiClient from '../services/apiClient';
 
 export const isAuthenticated = async () => {
     try {
-        const response = await axios.get(`${API_BASE_URL}/api/check-auth`, { withCredentials: true });
+        const response = await apiClient.get(`/api/check-auth`);
         return response.status === 200;
     }
-    catch (error) { return false; }
+    catch (error) { console.error(error); return false; }
 };
 
 export const logout = async () => {
     try {
-        await axios.post(`${API_BASE_URL}/logout`, {}, { withCredentials: true });
+        await apiClient.post(`/logout`, {});
         return true;
     } catch (error) {
         console.error("Logout failed:", error);

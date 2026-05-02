@@ -2,25 +2,21 @@
 
 import React, { useState, useEffect } from 'react';
 import { Link, Navigate, useSearchParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { requestPasswordReset, verifyPasswordReset, performPasswordReset } from '../../services/authService';
 import { toast } from 'react-hot-toast';
 
 export const ForgotPassword = () => {
     const [email, setEmail] = useState('');
-    const [redirect, setRedirect] = useState(false);
-    const navigate = useNavigate();
-
-    const handleInitialSubmit = (e) => {
+    const handleInitialSubmit = async (e) => {
         e.preventDefault();
         const loadToast = toast.loading("Verifying identity...");
 
-        axios.post(`${import.meta.env.VITE_API_URL}/forgot-password`, { contact: email })
-            .then((res) => {
-                toast.success(res.data.message, { id: loadToast });
-            })
-            .catch((err) => {
-                toast.error(err.response?.data?.message || "Identification failed.", { id: loadToast });
-            });
+        try {
+            const data = await requestPasswordReset(email);
+            toast.success(data.message, { id: loadToast });
+        } catch (err) {
+            toast.error(err.response?.data?.message || "Identification failed.", { id: loadToast });
+        }
     };
 
     return (
@@ -76,24 +72,28 @@ export const ResetPassword = ({ id, token }) => {
     useEffect(() => {
         if (!id || !token) {
             toast.error("Security parameters are missing.");
-            setVerifying(false);
-            setTimeout(() => navigate("/forgot-password"), 2000);
+            setTimeout(() => {
+                setVerifying(false);
+                navigate("/forgot-password");
+            }, 2000);
             return;
         }
 
-        axios.get(`${import.meta.env.VITE_API_URL}/reset-password-verify?id=${id}&token=${token}`)
+        verifyPasswordReset(id, token)
             .then(() => {
                 setValidToken(true);
                 setVerifying(false);
             })
             .catch(() => {
                 toast.error("Security token is invalid or has expired.");
-                setVerifying(false);
-                setTimeout(() => navigate("/forgot-password"), 2000);
+                setTimeout(() => {
+                    setVerifying(false);
+                    navigate("/forgot-password");
+                }, 2000);
             });
     }, [id, token, navigate]);
 
-    const handleFormSubmit = (e) => {
+    const handleFormSubmit = async (e) => {
         e.preventDefault();
         if (newPassword !== confirmPassword) {
             toast.error("Password confirmation does not match.");
@@ -106,14 +106,13 @@ export const ResetPassword = ({ id, token }) => {
         }
 
         const loadToast = toast.loading("Updating security credentials...");
-        axios.post(`${import.meta.env.VITE_API_URL}/reset-password-action`, { id, token, newPassword })
-            .then((res) => {
-                toast.success(res.data.message, { id: loadToast });
-                setTimeout(() => setRedirect(true), 1500);
-            })
-            .catch((err) => {
-                toast.error(err.response?.data?.message || "Internal error during password update.", { id: loadToast });
-            });
+        try {
+            const data = await performPasswordReset({ id, token, newPassword });
+            toast.success(data.message, { id: loadToast });
+            setTimeout(() => setRedirect(true), 1500);
+        } catch (err) {
+            toast.error(err.response?.data?.message || "Internal error during password update.", { id: loadToast });
+        }
     };
 
     if (redirect) return <Navigate to="/login" />;

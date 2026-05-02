@@ -1,19 +1,20 @@
 // App.jsx
 
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Link, Navigate, useLocation, matchPath } from 'react-router-dom';
-import axios from 'axios';
+import { BrowserRouter as Router, Routes, Route, Link, Navigate } from 'react-router-dom';
 import { Toaster, toast } from 'react-hot-toast';
-import Login from './components/Signin';
-import SignUp from './components/Signup';
-import { ForgotPassword, ResetPasswordWrapper } from './components/PassForgot';
+import apiClient from './services/apiClient';
+import { getAccount } from './services/authService';
+import Login from './pages/auth/Signin';
+import SignUp from './pages/auth/Signup';
+import { ForgotPassword, ResetPasswordWrapper } from './pages/auth/PassForgot';
 import { isAuthenticated, logout } from './utils/auth';
-import HomePage from "./components/Home";
-import Main from "./components/Main";
-import NewEntry from "./components/NewEntry";
-import ProfilePage from "./components/ProfilePage";
-import { Patient, Update } from './components/PatientData';
-import { FaUser, FaHome, FaSignOutAlt } from 'react-icons/fa';
+import HomePage from "./pages/dashboard/Home";
+import Main from "./pages/dashboard/Main";
+import NewEntry from "./pages/patient/NewEntry";
+import ProfilePage from "./pages/ProfilePage";
+import { Patient, Update } from './pages/patient/PatientProfilePage';
+import Navbar from './layout/Navbar';
 
 const App = () => {
 	const [authenticated, setAuthenticated] = useState(false);
@@ -21,8 +22,8 @@ const App = () => {
 
 	const fetchUsername = async () => {
 		try {
-			const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/account`, { withCredentials: true });
-			setUser(response.data.username);
+			const data = await getAccount();
+			setUser(data.username);
 		} catch (error) {
 			console.error("Error fetching user data:", error.response || error.message);
 		}
@@ -37,7 +38,7 @@ const App = () => {
 		checkAuth();
 
 		// Silent ping to wake up the Render backend from sleep mode
-		axios.get(`${import.meta.env.VITE_API_URL}/`).catch(() => { });
+		apiClient.get(`/`).catch(() => { });
 	}, []);
 
 	const handleLogout = async () => {
@@ -66,8 +67,7 @@ const App = () => {
 					style: { borderRadius: '12px', background: '#333', color: '#fff' }
 				}} />
 
-				<Navigation
-					authenticated={authenticated}
+				<Navbar
 					handleLogout={handleLogout}
 					username={user}
 				/>
@@ -91,44 +91,6 @@ const App = () => {
 	);
 };
 
-const Navigation = ({ authenticated, handleLogout, username }) => {
-	const location = useLocation();
-	const hiddenRoutes = ['/', '/login', '/signup', '/forgot-password', '/reset-password', "/home"];
 
-	const isHiddenRoute = hiddenRoutes.some((route) =>
-		matchPath({ path: route }, location.pathname)
-	);
-
-	if (isHiddenRoute) return null;
-
-	return (
-		<nav className="bg-white/80 backdrop-blur-md border-b border-slate-200 sticky top-0 z-50 px-8 py-4 flex items-center justify-between transition-all print:hidden">
-			<Link to="/home" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
-				<img src="/logo.svg" alt="Prana Logo" className="w-10 h-10" />
-				<span className="text-2xl font-black text-blue-600 tracking-tighter">Prana<span className="text-slate-400">.</span></span>
-			</Link>
-
-			<div className="flex items-center gap-8">
-				<NavLink to="/home" icon={<FaHome />} label="Dashboard" />
-				<NavLink to="/account" icon={<FaUser />} label={username || "Account"} />
-
-				<button
-					onClick={handleLogout}
-					className="flex items-center gap-2 text-red-500 hover:text-red-600 font-bold text-sm tracking-wide uppercase transition-colors"
-				>
-					<FaSignOutAlt className="text-lg" />
-					<span>Logout</span>
-				</button>
-			</div>
-		</nav>
-	);
-};
-
-const NavLink = ({ to, icon, label }) => (
-	<Link to={to} className="flex items-center gap-2 text-slate-500 hover:text-blue-600 font-bold text-sm tracking-wide uppercase transition-all">
-		<span className="text-lg opacity-80">{icon}</span>
-		<span>{label}</span>
-	</Link>
-);
 
 export default App;

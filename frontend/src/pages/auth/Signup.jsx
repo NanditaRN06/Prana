@@ -2,7 +2,7 @@
 
 import React, { useState, useRef } from 'react';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { signup } from '../../services/authService';
 import { toast } from 'react-hot-toast';
 
 const SignUp = () => {
@@ -23,7 +23,7 @@ const SignUp = () => {
     const passwordRegex = /^[A-Za-z0-9_@]{8,}$/;
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
-    const handleFormSubmission = (e) => {
+    const handleFormSubmission = async (e) => {
         e.preventDefault();
         const { fullName, email, username, countryCode, phoneDigits, password, confirmPassword } = formData;
         const phoneNumber = `${countryCode} ${phoneDigits}`.trim();
@@ -44,15 +44,14 @@ const SignUp = () => {
         }
 
         const loadToast = toast.loading("Creating your account...");
-        axios.post(`${import.meta.env.VITE_API_URL}/signup`, { fullName, email, username, phoneNumber, password })
-            .then(() => {
-                toast.success('Account created successfully.', { id: loadToast });
-                setTimeout(() => setRedirect(true), 1500);
-            })
-            .catch((err) => {
-                const errMsg = err.response?.data?.message || 'An error occurred during registration.';
-                toast.error(errMsg, { id: loadToast });
-            });
+        try {
+            await signup({ fullName, email, username, phoneNumber, password });
+            toast.success('Account created successfully.', { id: loadToast });
+            setTimeout(() => setRedirect(true), 1500);
+        } catch (err) {
+            const errMsg = err.response?.data?.message || 'An error occurred during registration.';
+            toast.error(errMsg, { id: loadToast });
+        }
     };
 
     const handleInputChange = (e) => {
