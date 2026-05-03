@@ -18,20 +18,20 @@ const Main = () => {
             </h2>
 
             <p className="text-xl text-slate-500 mb-12 max-w-2xl leading-relaxed font-semibold">
-                Building the future of patient record management through precision, security, and professional clinical workflows.
+                Efficient and secure patient record management for modern clinical practices.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-6 w-full max-w-md">
                 <Link to="/login" className="flex-1 w-full py-5 bg-blue-600 text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-2xl shadow-blue-200 hover:bg-blue-700 hover:scale-[1.02] active:scale-100 transition-all border-b-6 border-blue-900/40 inline-block text-center cursor-pointer">
-                    Access Portal
+                    Login
                 </Link>
                 <Link to="/signup" className="flex-1 w-full py-5 bg-white text-slate-900 border-2 border-slate-100 rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-xl hover:bg-slate-50 hover:scale-[1.02] active:scale-100 transition-all border-b-6 border-slate-200 inline-block text-center cursor-pointer">
-                    Join Registry
+                    Sign Up
                 </Link>
             </div>
 
             <div className="mt-20 pt-10 border-t border-slate-100 w-full max-w-sm">
-                <p className="text-[10px] font-black text-slate-300 uppercase tracking-[0.4em]">Optimized for Clinical Excellence</p>
+                <p className="text-[10px] font-black text-slate-300 uppercase tracking-[0.4em]">Reliable Clinical Data Management</p>
             </div>
         </div>
     );

@@ -41,7 +41,7 @@ const HomePage = () => {
         <div className="max-w-6xl mx-auto space-y-16 animate-in fade-in duration-700">
             <div className="text-center space-y-4">
                 <h1 className="text-5xl font-black text-slate-900 tracking-tighter">
-                    {name ? `Dr. ${name}'s Workspace` : "Initialising Hub..."}
+                    {name ? `Dr. ${name}'s Workspace` : "Loading your workspace..."}
                 </h1>
                 <p className="text-xl text-slate-500 font-medium">Welcome to the Prana Clinical Information System.</p>
             </div>
@@ -54,14 +54,14 @@ const HomePage = () => {
                 <DashboardCard
                     to="/new-entry"
                     icon={<FaUserPlus className="text-blue-600" size={48} />}
-                    label="Patient Intake"
-                    description="Initiate a new medical history and clinical examination record."
+                    label="New Patient Entry"
+                    description="Start a new patient record and examination."
                 />
                 <DashboardCard
                     to="/account"
                     icon={<FaUser className="text-slate-800" size={48} />}
-                    label="Credential Management"
-                    description="Configure your professional profile and security settings."
+                    label="Account Settings"
+                    description="Update your profile, hospital details, and security."
                 />
                 <button
                     onClick={handleLogout}
@@ -71,8 +71,8 @@ const HomePage = () => {
                         <FaSignOutAlt className="text-red-500" size={48} />
                     </div>
                     <div className="space-y-3 relative z-10">
-                        <h3 className="text-2xl font-black text-slate-900 tracking-tight">Terminate Session</h3>
-                        <p className="text-slate-500 text-sm font-medium leading-relaxed">Securely sign out and lock clinical access.</p>
+                        <h3 className="text-2xl font-black text-slate-900 tracking-tight">Logout</h3>
+                        <p className="text-slate-500 text-sm font-medium leading-relaxed">Logout of your account safely.</p>
                     </div>
                 </button>
             </div>
@@ -80,11 +80,10 @@ const HomePage = () => {
             <div className="bg-slate-900 rounded-[3rem] p-12 text-white shadow-2xl shadow-blue-900/10 overflow-hidden relative">
                 <div className="relative z-10 space-y-6 max-w-2xl">
                     <div className="inline-block px-4 py-1.5 bg-blue-600 rounded-full text-[10px] font-black uppercase tracking-[0.2em] mb-2">Platform Notice</div>
-                    <h2 className="text-3xl font-black tracking-tight leading-tight italic">Prana Clinical Intelligence Dashboard</h2>
+                    <h2 className="text-3xl font-black tracking-tight leading-tight italic">Prana Provider Dashboard</h2>
                     <p className="text-slate-400 text-lg leading-relaxed font-medium">
-                        Prana is engineered for medical precision, allowing providers to archive patient records,
-                        monitor investigations, and iterate treatment plans with unparalleled efficiency.
-                        Inspired by decades of neurological expertise.
+                        Prana helps doctors manage patient histories, track investigations, and update treatment plans efficiently. 
+                        Built for clinical accuracy.
                     </p>
                 </div>
                 <div className="absolute top-0 right-0 w-80 h-80 bg-blue-600/5 rounded-full -mr-32 -mt-32 blur-[80px]"></div>

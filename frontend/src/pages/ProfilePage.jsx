@@ -91,7 +91,9 @@ function ProfilePage() {
         toast((t) => (
             <div className="flex flex-col gap-3">
                 <p className="font-bold text-slate-800">Confirm Account Deactivation</p>
-                <p className="text-sm text-slate-600">Your account will be temporarily disabled. Your data will be preserved, but you will not be able to log in until reactivated by support.</p>
+                <p className="text-sm text-slate-600">This will disable your account. The disable will last default for 100 hours.
+                    After 100 hours, you will receive a email which will allow you to reactivate account when needed. Your data
+                    will remain safe throughout the deactivation period.</p>
                 <div className="flex justify-end gap-2 mt-2">
                     <button
                         onClick={() => toast.dismiss(t.id)}
@@ -211,6 +213,7 @@ function ProfilePage() {
                                     <button
                                         onClick={toDeactivate}
                                         className="flex-1 py-4 bg-slate-100 text-slate-600 rounded-2xl font-black text-[11px] uppercase tracking-wider hover:bg-slate-200 transition-all border border-slate-200 border-b-4 border-black/10"
+                                        disabled={true}  // Temporary disable until implementation of feature
                                     >
                                         Deactivate Account
                                     </button>

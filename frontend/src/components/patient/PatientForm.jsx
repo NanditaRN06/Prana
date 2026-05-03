@@ -506,7 +506,7 @@ const PatientForm = ({ initialData = {}, mode = "create", onSubmit }) => {
                                 ))}
                             </div>
                             {formData.allergies === "yes" && (
-                                <textarea name="allergyDetails" className="textarea-field mt-4 border-red-100" placeholder="Document specific allergen sensitivities..." value={formData.allergyDetails} onChange={handleInputChange} required />
+                                <textarea name="allergyDetails" className="textarea-field mt-4 border-red-100" placeholder="List any known drug or food allergies here..." value={formData.allergyDetails} onChange={handleInputChange} required />
                             )}
                         </FormGroup>
 

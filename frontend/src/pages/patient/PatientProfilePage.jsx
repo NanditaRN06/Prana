@@ -104,7 +104,7 @@ export function Patient() {
             await deletePatient(encodeURIComponent(patientData.name));
             toast.success("Patient record successfully removed.", { id: loadToast });
             navigate("/home");
-        } catch (err) {
+        } catch {
             toast.error("An error occurred during deletion.", { id: loadToast });
         }
     };
@@ -449,7 +449,7 @@ export function Update() {
             await updatePatient(encodeURIComponent(patientData.name), submissionData);
             toast.success("Patient information updated.", { id: loadToast });
             navigate(`/patient/${submissionData.name}`);
-        } catch (err) {
+        } catch {
             toast.error("Failed to update information.", { id: loadToast });
         }
     };
