@@ -25,10 +25,14 @@ exports.updatePatientEntry = async (patientId, userId, updatePayload) => {
         'clinicalDiagnosis', 'chiefComplaints', 'examination', 'treatments',
         'otherDetails', 'investigations', 'investigationDetails', 'vitals'
     ];
-    
+
     const updatedData = {};
-    for (const key of allowedFields) { 
-        if (updatePayload[key] !== undefined) updatedData[key] = updatePayload[key]; 
+    for (const key of allowedFields) {
+        if (updatePayload[key] !== undefined) updatedData[key] = updatePayload[key];
+    }
+
+    if (updatedData.vitals) {
+        validateVitals(updatedData.vitals);
     }
 
     if (updatedData.vitals) {
@@ -40,7 +44,7 @@ exports.updatePatientEntry = async (patientId, userId, updatePayload) => {
 
     const versionSnapshot = currentPatient.toObject();
     delete versionSnapshot._id; delete versionSnapshot.versions; delete versionSnapshot.updatedAt;
-    
+
     const changedFields = [];
     const ignoreFields = ['versions', 'updatedAt', 'userId', '_id', '__v', 'createdAt'];
 
@@ -50,7 +54,7 @@ exports.updatePatientEntry = async (patientId, userId, updatePayload) => {
             changedFields.push(key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()));
         }
     }
-    
+
     const changeSummary = changedFields.length > 0 ? `Edited ${changedFields.join(", ")}` : "Manual Update";
 
     const result = await Patient.findOneAndUpdate(
@@ -58,7 +62,7 @@ exports.updatePatientEntry = async (patientId, userId, updatePayload) => {
         { $set: updatedData, $push: { versions: { ...versionSnapshot, versionDate: new Date(), changeSummary } } },
         { new: true, runValidators: true }
     );
-    
+
     return result;
 };
 
