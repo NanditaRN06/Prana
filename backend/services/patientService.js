@@ -1,7 +1,11 @@
 // backend/services/patientService.js
 const Patient = require("../models/Patient");
+const { validateVitals } = require("../validators/patientValidator");
 
 exports.createPatientEntry = async (patientData) => {
+    if (patientData.vitals) {
+        validateVitals(patientData.vitals);
+    }
     const newPatient = new Patient(patientData);
     await newPatient.save();
     return newPatient;
@@ -19,12 +23,16 @@ exports.updatePatientEntry = async (patientId, userId, updatePayload) => {
         'name', 'age', 'phone', 'address', 'examdate', 'comorbidities',
         'comorbidityData', 'allergies', 'allergyDetails', 'currentMedications',
         'clinicalDiagnosis', 'chiefComplaints', 'examination', 'treatments',
-        'otherDetails', 'investigations', 'investigationDetails'
+        'otherDetails', 'investigations', 'investigationDetails', 'vitals'
     ];
     
     const updatedData = {};
     for (const key of allowedFields) { 
         if (updatePayload[key] !== undefined) updatedData[key] = updatePayload[key]; 
+    }
+
+    if (updatedData.vitals) {
+        validateVitals(updatedData.vitals);
     }
 
     const currentPatient = await Patient.findOne({ name: patientId, userId });

@@ -29,7 +29,7 @@ const SignUp = () => {
         const phoneNumber = `${countryCode} ${phoneDigits}`.trim();
 
         if (!emailRegex.test(email)) {
-            toast.error("Please enter a valid clinical email address.");
+            toast.error("Please enter a valid email address.");
             return;
         }
 
@@ -39,7 +39,7 @@ const SignUp = () => {
         }
 
         if (password !== confirmPassword) {
-            toast.error('Identity confirmation failed: Passwords do not match.');
+            toast.error('Passwords do not match.');
             return;
         }
 

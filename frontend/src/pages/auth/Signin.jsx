@@ -12,7 +12,7 @@ const Login = ({ onLoginSuccess }) => {
 
     const handleFormSubmission = async (e) => {
         e.preventDefault();
-        const loadToast = toast.loading("Checking login details...");
+        const loadToast = toast.loading("Logging in...");
 
         try {
             const data = await login(formData);
@@ -101,7 +101,7 @@ const Login = ({ onLoginSuccess }) => {
                             <img src="/logo.svg" alt="Prana Logo" theme="dark" />
                         </div>
                         <h3 className="text-2xl font-black text-white tracking-tight">Prana Clinical</h3>
-                        <p className="text-slate-400 font-medium leading-relaxed max-w-[200px] mx-auto text-sm">Easily manage patient records and treatment plans.</p>
+                        <p className="text-slate-400 font-medium leading-relaxed max-w-[200px] mx-auto text-sm">A simple way to manage your clinical records.</p>
                     </div>
                     <div className="absolute top-0 right-0 w-64 h-64 bg-blue-600/10 rounded-full blur-[80px]"></div>
                     <div className="absolute bottom-0 left-0 w-64 h-64 bg-indigo-600/10 rounded-full blur-[80px]"></div>

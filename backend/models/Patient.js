@@ -34,6 +34,14 @@ const patientSchema = new mongoose.Schema({
         mri: [{ region: String }],
         others: { type: String } // Custom investigation text
     },
+    vitals: {
+        pulse: { type: Number, min: 0, max: 300, default: undefined },
+        bp: {
+            systolic: { type: Number, min: 0, max: 300, default: undefined },
+            diastolic: { type: Number, min: 0, max: 200, default: undefined }
+        },
+        spO2: { type: Number, min: 0, max: 100, default: undefined }
+    },
     versions: []
 }, { timestamps: true });
 
