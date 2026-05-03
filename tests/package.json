@@ -4,10 +4,10 @@
   "description": "Test environment for Prana CMS",
   "type": "module",
   "scripts": {
-    "test:be": "cross-env NODE_OPTIONS=--experimental-vm-modules jest",
+    "test:be": "cross-env MONGOMS_DOWNLOAD_DIR=./node_modules/.cache/mongodb-binaries NODE_OPTIONS=--experimental-vm-modules jest",
     "test:fe": "vitest run",
     "test:all": "npm run test:be && npm run test:fe",
-    "cleanup:binaries": "rimraf node_modules/.cache/mongodb-memory-server",
+    "cleanup:binaries": "rimraf node_modules/.cache/mongodb-binaries",
     "posttest:be": "npm run cleanup:binaries",
     "posttest:all": "npm run cleanup:binaries"
   },
