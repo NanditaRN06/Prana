@@ -174,7 +174,8 @@ const PatientView = ({ data, doctorProfile, handlePrint, handleDelete, navigate,
         allergies, allergyDetails,
         clinicalDiagnosis, currentMedications,
         chiefComplaints, examination, treatments, otherDetails,
-        investigations = [], investigationDetails = {}
+        investigations = [], investigationDetails = {},
+        vitals = {}
     } = data;
 
     const formatDate = (dateString) => {
@@ -283,7 +284,33 @@ const PatientView = ({ data, doctorProfile, handlePrint, handleDelete, navigate,
                                     </div>
                                 </div>
 
-                                <div className="space-y-10 print:space-y-8">
+                                {(vitals?.pulse || vitals?.spO2 || vitals?.bp?.systolic || vitals?.bp?.diastolic) && (
+                                    <div className="space-y-4 print:space-y-2 mt-10 print:mt-8">
+                                        <SectionTitle title="Vitals" />
+                                        <div className="flex flex-wrap gap-4 print:gap-6">
+                                            {vitals?.pulse && (
+                                                <div className="px-5 py-3 bg-red-50 text-red-900 rounded-2xl border border-red-100 flex-1 min-w-[120px] print:p-2 print:border-none print:bg-white print:text-slate-900">
+                                                    <span className="block text-[10px] font-black uppercase tracking-widest opacity-60 mb-1 print:text-[9px]">Pulse</span>
+                                                    <span className="text-xl font-bold">{vitals.pulse} <span className="text-xs">bpm</span></span>
+                                                </div>
+                                            )}
+                                            {(vitals?.bp?.systolic || vitals?.bp?.diastolic) && (
+                                                <div className="px-5 py-3 bg-purple-50 text-purple-900 rounded-2xl border border-purple-100 flex-1 min-w-[120px] print:p-2 print:border-none print:bg-white print:text-slate-900">
+                                                    <span className="block text-[10px] font-black uppercase tracking-widest opacity-60 mb-1 print:text-[9px]">Blood Pressure</span>
+                                                    <span className="text-xl font-bold">{vitals?.bp?.systolic || "-"} / {vitals?.bp?.diastolic || "-"} <span className="text-xs">mmHg</span></span>
+                                                </div>
+                                            )}
+                                            {vitals?.spO2 && (
+                                                <div className="px-5 py-3 bg-blue-50 text-blue-900 rounded-2xl border border-blue-100 flex-1 min-w-[120px] print:p-2 print:border-none print:bg-white print:text-slate-900">
+                                                    <span className="block text-[10px] font-black uppercase tracking-widest opacity-60 mb-1 print:text-[9px]">SpO2</span>
+                                                    <span className="text-xl font-bold">{vitals.spO2} <span className="text-xs">%</span></span>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
+
+                                <div className="space-y-10 print:space-y-8 mt-10 print:mt-8">
                                     <PrintSection label="Patient Complaints" content={chiefComplaints} />
                                     <PrintSection label="Examination Results" content={examination} />
 

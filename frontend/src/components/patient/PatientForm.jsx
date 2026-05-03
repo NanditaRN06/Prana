@@ -134,7 +134,15 @@ const PatientForm = ({ initialData = {}, mode = "create", onSubmit }) => {
         currentMedications: initialData.currentMedications || "",
         chiefComplaints: initialData.chiefComplaints || "",
         examination: initialData.examination || "",
-        otherDetails: initialData.otherDetails || ""
+        otherDetails: initialData.otherDetails || "",
+        vitals: {
+            pulse: initialData.vitals?.pulse || "",
+            bp: {
+                systolic: initialData.vitals?.bp?.systolic || "",
+                diastolic: initialData.vitals?.bp?.diastolic || ""
+            },
+            spO2: initialData.vitals?.spO2 || ""
+        }
     });
 
     const [comorbidities, setComorbidities] = useState(() => {
@@ -183,6 +191,26 @@ const PatientForm = ({ initialData = {}, mode = "create", onSubmit }) => {
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
+        if (mode === 'edit') setHasChanges(true);
+    };
+
+    const handleVitalsChange = (e) => {
+        const { name, value } = e.target;
+        const parsedValue = value === "" ? "" : Number(value);
+        if (name === "systolic" || name === "diastolic") {
+            setFormData(prev => ({
+                ...prev,
+                vitals: {
+                    ...prev.vitals,
+                    bp: { ...prev.vitals.bp, [name]: parsedValue }
+                }
+            }));
+        } else {
+            setFormData(prev => ({
+                ...prev,
+                vitals: { ...prev.vitals, [name]: parsedValue }
+            }));
+        }
         if (mode === 'edit') setHasChanges(true);
     };
     const toggleComorbidity = (name) => {
@@ -340,6 +368,13 @@ const PatientForm = ({ initialData = {}, mode = "create", onSubmit }) => {
             return;
         }
 
+        const sysVal = formData.vitals.bp.systolic;
+        const diaVal = formData.vitals.bp.diastolic;
+        if ((sysVal !== "" && diaVal === "") || (sysVal === "" && diaVal !== "")) {
+            toast.error("Please enter both the Systolic and Diastolic blood pressure values, or leave both empty.");
+            return;
+        }
+
         const medicinesFormatted = medicines.map(m => {
             const doseCombined = `${m.dose} ${m.doseUnit}`.trim();
             return `${m.type} ${m.name}-${doseCombined}-[${m.schedule.join(",")}]-${m.daysCount} ${m.daysUnit}-${m.instructions}`;
@@ -350,6 +385,15 @@ const PatientForm = ({ initialData = {}, mode = "create", onSubmit }) => {
             ct: investigationDetails.ct.map(item => { const rest = { ...item }; delete rest.id; return rest; }),
             enmg: investigationDetails.enmg.map(item => { const rest = { ...item }; delete rest.id; return rest; }),
             others: investigationDetails.others || ""
+        };
+
+        const cleanVitals = {
+            pulse: formData.vitals.pulse !== "" ? Number(formData.vitals.pulse) : null,
+            bp: {
+                systolic: formData.vitals.bp.systolic !== "" ? Number(formData.vitals.bp.systolic) : null,
+                diastolic: formData.vitals.bp.diastolic !== "" ? Number(formData.vitals.bp.diastolic) : null
+            },
+            spO2: formData.vitals.spO2 !== "" ? Number(formData.vitals.spO2) : null
         };
 
         const submissionData = {
@@ -363,7 +407,8 @@ const PatientForm = ({ initialData = {}, mode = "create", onSubmit }) => {
             treatments: medicinesFormatted,
             investigations: selectedInvestigations.length > 0 ? selectedInvestigations : ["None"],
             investigationDetails: cleanInvestigationDetails,
-            allergies: formData.allergies === "yes" ? "Yes" : "No"
+            allergies: formData.allergies === "yes" ? "Yes" : "No",
+            vitals: cleanVitals
         };
 
         onSubmit(submissionData);
@@ -411,6 +456,27 @@ const PatientForm = ({ initialData = {}, mode = "create", onSubmit }) => {
                             </FormGroup>
                             <FormGroup label="Examination Date & Time" required>
                                 <input type="datetime-local" name="examdate" className="input-field" value={formData.examdate} onChange={handleInputChange} required />
+                            </FormGroup>
+                        </div>
+                    </section>
+
+                    <section className="space-y-6">
+                        <div className="flex items-center justify-between">
+                            <SectionHeading title="Vitals (Optional)" />
+                            <span className="text-xs text-slate-400 font-bold bg-slate-100 px-3 py-1 rounded-full">Only recorded values will be saved</span>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+                            <FormGroup label="Pulse (bpm)">
+                                <input type="number" name="pulse" className="input-field" placeholder="0 - 300" min="0" max="300" value={formData.vitals.pulse} onChange={handleVitalsChange} />
+                            </FormGroup>
+                            <FormGroup label="BP Systolic">
+                                <input type="number" name="systolic" className="input-field" placeholder="mmHg" min="0" max="300" value={formData.vitals.bp.systolic} onChange={handleVitalsChange} />
+                            </FormGroup>
+                            <FormGroup label="BP Diastolic">
+                                <input type="number" name="diastolic" className="input-field" placeholder="mmHg" min="0" max="200" value={formData.vitals.bp.diastolic} onChange={handleVitalsChange} />
+                            </FormGroup>
+                            <FormGroup label="SpO2 (%)">
+                                <input type="number" name="spO2" className="input-field" placeholder="0 - 100" min="0" max="100" value={formData.vitals.spO2} onChange={handleVitalsChange} />
                             </FormGroup>
                         </div>
                     </section>
