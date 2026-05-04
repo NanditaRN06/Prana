@@ -6,7 +6,7 @@ import { getPatient, deletePatient, updatePatient } from "../../services/patient
 import { getAccount } from "../../services/authService";
 import { toast } from "react-hot-toast";
 import { FaPrint, FaEdit, FaTrash, FaCheck, FaHistory, FaTimes, FaPhone, FaMapMarkerAlt, FaFileMedical } from 'react-icons/fa';
-import PatientForm from "../../components/patient/PatientForm";
+import PatientForm from "../../components/PatientForm";
 
 export function Patient() {
     const { patientId } = useParams();

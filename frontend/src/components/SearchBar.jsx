@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { Navigate } from "react-router-dom";
 import { FaSearch, FaChevronRight } from 'react-icons/fa';
-import { searchPatients } from "../../services/patientService";
+import { searchPatients } from "../services/patientService";
 
 const SearchBar = () => {
     const [inputChange, setInputChange] = useState("");
