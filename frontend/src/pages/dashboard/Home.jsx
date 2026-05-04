@@ -1,7 +1,7 @@
 // frontend/components/Home.jsx
 
 import { useState, useEffect } from "react";
-import SearchBar from "../../components/patient/SearchBar";
+import SearchBar from "../../components/SearchBar";
 import { Link, useNavigate } from "react-router-dom";
 import { FaUser, FaUserPlus, FaSignOutAlt } from 'react-icons/fa';
 import { logout } from '../../utils/auth';
@@ -82,7 +82,7 @@ const HomePage = () => {
                     <div className="inline-block px-4 py-1.5 bg-blue-600 rounded-full text-[10px] font-black uppercase tracking-[0.2em] mb-2">Platform Notice</div>
                     <h2 className="text-3xl font-black tracking-tight leading-tight italic">Prana Provider Dashboard</h2>
                     <p className="text-slate-400 text-lg leading-relaxed font-medium">
-                        Prana helps doctors manage patient histories, track investigations, and update treatment plans efficiently. 
+                        Prana helps doctors manage patient histories, track investigations, and update treatment plans efficiently.
                         Built for clinical accuracy.
                     </p>
                 </div>

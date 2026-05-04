@@ -4,7 +4,7 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { createPatient } from "../../services/patientService";
 import { toast } from "react-hot-toast";
-import PatientForm from "../../components/patient/PatientForm";
+import PatientForm from "../../components/PatientForm";
 
 const NewEntry = () => {
     const navigate = useNavigate();
