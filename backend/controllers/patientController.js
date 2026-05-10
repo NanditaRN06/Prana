@@ -3,6 +3,7 @@ const patientService = require("../services/patientService");
 
 exports.newEntry = async (req, res) => {
     try {
+        if (!req.user || !req.user.id) return res.status(401).json({ message: 'Unauthorized access.' });
         const patientData = { ...req.body, userId: req.user.id };
         await patientService.createPatientEntry(patientData);
         res.status(201).json({ message: 'Patient clinical record successfully archived.' });

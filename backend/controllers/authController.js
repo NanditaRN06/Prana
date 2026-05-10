@@ -16,6 +16,9 @@ exports.signup = async (req, res) => {
 
 exports.login = async (req, res) => {
     try {
+        if (!req.body || !req.body.username || !req.body.password) {
+            return res.status(400).json({ message: "Username and password are required." });
+        }
         const logintoken = await authService.loginUser(req.body);
         res.cookie('token', logintoken, {
             httpOnly: true,
