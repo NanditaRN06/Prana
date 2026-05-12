@@ -304,7 +304,7 @@ export const usePatientForm = (initialData = {}, mode = "create", onSubmit) => {
         }
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
         if (comorbidities.length === 0) {
@@ -370,7 +370,13 @@ export const usePatientForm = (initialData = {}, mode = "create", onSubmit) => {
             vitals: cleanVitals
         };
 
-        onSubmit(submissionData);
+        try {
+            await onSubmit(submissionData);
+        } catch (error) {
+            // Error handling is typically done within the onSubmit handler (e.g. toast.error)
+            // But we catch it here to prevent unhandled rejections
+            console.error("Form submission failed:", error);
+        }
     };
 
     return {

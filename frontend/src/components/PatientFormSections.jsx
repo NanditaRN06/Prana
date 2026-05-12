@@ -2,9 +2,9 @@
 
 import { COMORBIDITY_OPTIONS, DURATION_OPTIONS } from "../utils/usePatientForm";
 
-export const FormGroup = ({ label, children, required = false }) => (
+export const FormGroup = ({ label, children, required = false, htmlFor }) => (
     <div className="space-y-3">
-        <label className="text-xs font-black text-slate-400 uppercase tracking-widest pl-1 font-mono">
+        <label htmlFor={htmlFor} className="text-xs font-black text-slate-400 uppercase tracking-widest pl-1 font-mono">
             {label}
             {required && <span className="text-red-500 ml-1">*</span>}
         </label>
@@ -20,14 +20,15 @@ export const GeneralInfo = ({ formData, handleInputChange }) => (
     <section className="space-y-6">
         <SectionHeading title="General Information" />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <FormGroup label="Patient Full Name" required>
-                <input name="name" className="input-field" placeholder="Enter legal name" value={formData.name} onChange={handleInputChange} required />
+            <FormGroup label="Patient Full Name" required htmlFor="name">
+                <input id="name" name="name" className="input-field" placeholder="Enter legal name" value={formData.name} onChange={handleInputChange} required />
             </FormGroup>
-            <FormGroup label="Age (Years)" required>
-                <input type="number" name="age" className="input-field" placeholder="0-120" value={formData.age} onChange={handleInputChange} required />
+            <FormGroup label="Age (Years)" required htmlFor="age">
+                <input id="age" type="number" name="age" className="input-field" placeholder="0-120" value={formData.age} onChange={handleInputChange} required />
             </FormGroup>
-            <FormGroup label="Phone Number" required>
+            <FormGroup label="Phone Number" required htmlFor="phone">
                 <input
+                    id="phone"
                     type="tel"
                     name="phone"
                     className="input-field"
@@ -41,11 +42,11 @@ export const GeneralInfo = ({ formData, handleInputChange }) => (
                     onInput={(e) => { e.target.value = e.target.value.replace(/[^0-9]/g, '').slice(0, 10); }}
                 />
             </FormGroup>
-            <FormGroup label="Residential Address">
-                <input type="text" name="address" className="input-field" placeholder="Optional" value={formData.address} onChange={handleInputChange} />
+            <FormGroup label="Residential Address" htmlFor="address">
+                <input id="address" type="text" name="address" className="input-field" placeholder="Optional" value={formData.address} onChange={handleInputChange} />
             </FormGroup>
-            <FormGroup label="Examination Date & Time" required>
-                <input type="datetime-local" name="examdate" className="input-field" value={formData.examdate} onChange={handleInputChange} required />
+            <FormGroup label="Examination Date & Time" required htmlFor="examdate">
+                <input id="examdate" type="datetime-local" name="examdate" className="input-field" value={formData.examdate} onChange={handleInputChange} required />
             </FormGroup>
         </div>
     </section>
@@ -58,17 +59,17 @@ export const Vitals = ({ vitals, handleVitalsChange }) => (
             <span className="text-xs text-slate-400 font-bold bg-slate-100 px-3 py-1 rounded-full">Only recorded values will be saved</span>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <FormGroup label="Pulse (bpm)">
-                <input type="number" name="pulse" className="input-field" placeholder="0 - 300" min="0" max="300" value={vitals.pulse} onChange={handleVitalsChange} />
+            <FormGroup label="Pulse (bpm)" htmlFor="pulse">
+                <input id="pulse" type="number" name="pulse" className="input-field" placeholder="0 - 300" min="0" max="300" value={vitals.pulse} onChange={handleVitalsChange} />
             </FormGroup>
-            <FormGroup label="BP Systolic">
-                <input type="number" name="systolic" className="input-field" placeholder="mmHg" min="0" max="300" value={vitals.bp.systolic} onChange={handleVitalsChange} />
+            <FormGroup label="BP Systolic" htmlFor="systolic">
+                <input id="systolic" type="number" name="systolic" className="input-field" placeholder="mmHg" min="0" max="300" value={vitals.bp.systolic} onChange={handleVitalsChange} />
             </FormGroup>
-            <FormGroup label="BP Diastolic">
-                <input type="number" name="diastolic" className="input-field" placeholder="mmHg" min="0" max="200" value={vitals.bp.diastolic} onChange={handleVitalsChange} />
+            <FormGroup label="BP Diastolic" htmlFor="diastolic">
+                <input id="diastolic" type="number" name="diastolic" className="input-field" placeholder="mmHg" min="0" max="200" value={vitals.bp.diastolic} onChange={handleVitalsChange} />
             </FormGroup>
-            <FormGroup label="SpO2 (%)">
-                <input type="number" name="spO2" className="input-field" placeholder="0 - 100" min="0" max="100" value={vitals.spO2} onChange={handleVitalsChange} />
+            <FormGroup label="SpO2 (%)" htmlFor="spO2">
+                <input id="spO2" type="number" name="spO2" className="input-field" placeholder="0 - 100" min="0" max="100" value={vitals.spO2} onChange={handleVitalsChange} />
             </FormGroup>
         </div>
     </section>

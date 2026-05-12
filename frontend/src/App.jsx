@@ -14,6 +14,7 @@ import Main from "./pages/dashboard/Main";
 import NewEntry from "./pages/patient/NewEntry";
 import ProfilePage from "./pages/ProfilePage";
 import { Patient, Update } from './pages/patient/PatientProfilePage';
+import NotFound from './pages/NotFound';
 import Navbar from './layout/Navbar';
 
 const App = () => {
@@ -84,6 +85,7 @@ const App = () => {
 						<Route path="/new-entry" element={authenticated ? <NewEntry /> : <Navigate to="/login" />} />
 						<Route path="/update/:patientId" element={authenticated ? <Update /> : <Navigate to="/login" />} />
 						<Route path="/patient/:patientId" element={authenticated ? <Patient /> : <Navigate to="/login" />} />
+						<Route path="*" element={<NotFound />} />
 					</Routes>
 				</main>
 			</div>
