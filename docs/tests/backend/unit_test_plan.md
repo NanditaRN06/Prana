@@ -68,6 +68,10 @@ This document serves as the definitive roadmap for ensuring the technical excell
 | **BE-UT-47** | 🔒<br>Security | `authRoutes` | Rate limiting | `authRoutes.js` | N/A | > X requests per min | 429 Too Many Requests | Rate limiter middleware; message: "Too many attempts. Try again later." |
 | **BE-UT-48** | 🔒<br>Security | `authController` | JWT reset token re-use after password changed | `authController.js` | Password already reset, JWT still valid | Re-submit reset token with new password | 401 Unauthorized | Token invalidated because secret includes `user.password`; after password change, `jwt.verify` fails with wrong secret |
 | **BE-UT-49** | 💥<br>Failure | `signup` | Generic 500 catch (non-registration error) | `authController.js` | DB throws unexpected error | Valid signup payload | 500 Internal Error | Covers the `else` branch in catch — error does not include 'registered' or 'taken' |
+| **BE-UT-126** | ✅<br>Happy Path | `registerUser` | Successful Signup | `authService.js` | N/A | Valid user data | 200 OK | Added from impl |
+| **BE-UT-127** | ✅<br>Happy Path | `loginUser` | Successful Login | `authService.js` | N/A | Valid user data | 200 OK | Added from impl |
+| **BE-UT-128** | ✅<br>Happy Path | `verifyPasswordReset` | Successful verify | `authService.js` | N/A | Valid tokens | Returns user | Added from impl |
+| **BE-UT-129** | ✅<br>Happy Path | `resetPassword` | Successful reset | `authService.js` | N/A | Valid payload | Returns true | Added from impl |
 
 ### User / Account Management
 | Test Case ID | Legend | Function | Test Scenario / Description | File(s) | Preconditions | Input Data | Expected Result | Remarks |
@@ -92,6 +96,7 @@ This document serves as the definitive roadmap for ensuring the technical excell
 | **BE-UT-67** | 💥<br>Failure | `updateAccount` | Generic DB error → 500 | `userController.js` | Authenticated, DB throws | PUT `/account` | 500 Internal Error | `catch(err)` block in `updateAccount` |
 | **BE-UT-68** | 💥<br>Failure | `deactivateAccount` | User not found in DB | `userController.js` | Valid token, deleted user | POST `/deactivate` | 404 Not Found | `!user` branch after `findById` |
 | **BE-UT-69** | 💥<br>Failure | `getAccount` | Generic DB error → 500 | `userController.js` | Authenticated, DB throws | GET `/account` | 500 Internal Error | `catch(err)` block in `getAccount` |
+| **BE-UT-139** | 💥<br>Failure | `deleteAccount` | User not found in DB | `userController.js` | N/A | Valid token | 404 Not Found | Added from impl |
 
 ### Patient Management
 | Test Case ID | Legend | Function | Test Scenario / Description | File(s) | Preconditions | Input Data | Expected Result | Remarks |
@@ -127,6 +132,16 @@ This document serves as the definitive roadmap for ensuring the technical excell
 | **BE-UT-98** | 💥<br>Failure | `deletePatient` | Generic DB error → 500 | `patientController.js` | Authenticated, DB throws non-"not found" error | DELETE `/patient/:id` | 500 Internal Error | Fallback `catch` path in `deletePatient` |
 | **BE-UT-99** | 💥<br>Failure | `searchPatients` | Generic DB error → 500 | `patientController.js` | Authenticated, DB throws | GET `/api/search-patients?query=x` | 500 Internal Error | `catch` block in `searchPatients` |
 | **BE-UT-100** | 🚫<br>Invalid Input | `updatePatientEntry` | Invalid vitals during update → throws | `patientService.js` | Record exists | `vitals: { pulse: 999 }` | Error thrown from `validateVitals` | Vitals validation runs on update path too |
+| **BE-UT-130** | 💥<br>Failure | `newEntry` | 500 Internal error | `patientController.js` | N/A | Valid payload | 500 Internal Error | Added from impl |
+| **BE-UT-131** | 💥<br>Failure | `updatePatient` | 404 not found | `patientController.js` | N/A | Valid payload | 404 Not Found | Added from impl |
+| **BE-UT-132** | ✅<br>Happy Path | `createPatientEntry` | create without vitals | `patientService.js` | N/A | Valid payload | 200 OK | Added from impl |
+| **BE-UT-133** | ✅<br>Happy Path | `createPatientEntry` | create with vitals | `patientService.js` | N/A | Valid payload | 200 OK | Added from impl |
+| **BE-UT-134** | 💥<br>Failure | `getPatientByIdAndUserId` | not found | `patientService.js` | N/A | Invalid id | Throws | Added from impl |
+| **BE-UT-135** | ✅<br>Happy Path | `updatePatientEntry` | Update with vitals | `patientService.js` | N/A | Valid payload | 200 OK | Added from impl |
+| **BE-UT-136** | 💥<br>Failure | `updatePatientEntry` | not found | `patientService.js` | N/A | Invalid id | Throws | Added from impl |
+| **BE-UT-137** | 💥<br>Failure | `deletePatientEntry` | not found | `patientService.js` | N/A | Invalid id | Throws | Added from impl |
+| **BE-UT-140** | ✅<br>Happy Path | `deletePatient` | Clean Purge | `patientController.js` | N/A | Valid id | 200 OK | Split from BE-UT-81 |
+| **BE-UT-141** | ✅<br>Happy Path | `searchPatients` | Multi-field Search | `patientController.js` | N/A | Valid query | 200 OK | Split from BE-UT-83 |
 
 ### Models & Validators
 | Test Case ID | Legend | Function | Test Scenario / Description | File(s) | Preconditions | Input Data | Expected Result | Remarks |
@@ -147,6 +162,7 @@ This document serves as the definitive roadmap for ensuring the technical excell
 | **BE-UT-114** | 🚫<br>Invalid Input | `Patient` Model | Invalid age type — string rejected | `Patient.js` | N/A | `age: "five"` | ValidationError | Age must be a Number |
 | **BE-UT-115** | 🚫<br>Invalid Input | `Patient` Model | Invalid age — negative value rejected | `Patient.js` | N/A | `age: -1` | ValidationError | Age must be >= 0 |
 | **BE-UT-116** | 🧩<br>Edge Case | `User` Model | Duplicate phoneNumber rejected by sparse unique index | `User.js` | Phone "9876543210" exists | Create second user with same phone | MongoServerError: duplicate key | Sparse unique index enforcement |
+| **BE-UT-138** | ✅<br>Happy Path | `validateVitals` | valid vitals | `patientValidator.js` | N/A | Valid payload | Passes | Added from impl |
 
 ### App Base / Infrastructure
 | Test Case ID | Legend | Function | Test Scenario / Description | File(s) | Preconditions | Input Data | Expected Result | Remarks |

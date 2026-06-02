@@ -144,25 +144,25 @@ The testing methodology focuses on **component reliability, state management int
 ### Auth Pages — `Signin.jsx`
 | Test Case ID | Legend | Function | Test Scenario / Description | File(s) | Preconditions | Input Data | Expected Result | Remarks |
 | :--- | :---: | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **FE-UT-99** | ✅<br>Happy Path | `handleFormSubmission` | Successful login → toast + redirect | `Signin.jsx` | Mock: `login()` resolves `{authenticated:true}` | Username + password | Toast success, localStorage set, `<Navigate to="/home">` | Full success flow |
-| **FE-UT-100** | 💥<br>Failure | `handleFormSubmission` | Login fails → toast error | `Signin.jsx` | Mock: `login()` resolves `{authenticated:false}` | Any credentials | Toast error with server message | `data.message` displayed |
-| **FE-UT-101** | 💥<br>Failure | `handleFormSubmission` | API throws → catch toast | `Signin.jsx` | Mock: `login()` rejects | Any credentials | Toast error: API error message | `err.response?.data?.message` fallback |
-| **FE-UT-102** | ✅<br>UI | `handleInputChange` | Input fields update formData state | `Signin.jsx` | N/A | Type in username field | `formData.username` updated | Controlled inputs |
-| **FE-UT-103** | ✅<br>UI | Render | Forgot Password link navigates | `Signin.jsx` | Component rendered | Click "Forgot Password?" | Navigates to `/forgot-password` | `<Link to="/forgot-password">` |
-| **FE-UT-104** | ✅<br>UI | Render | "Create Account" link navigates | `Signin.jsx` | Component rendered | Click "Create Account" | Navigates to `/signup` | `<Link to="/signup">` |
-| **FE-UT-105** | ✅<br>UI | Render | "Go back" navigates to `/` | `Signin.jsx` | Component rendered | Click "Go back" | Navigates to `/` | `navigate("/")` |
+| **FE-UT-99** | ✅<br>Happy Path | `handleFormSubmission` | Signin Comp - Happy Path: Successful Login | `Signin.jsx` | Mock: `login()` resolves `{authenticated:true}` | Username + password | Toast success, localStorage set, `<Navigate to="/home">` | Full success flow |
+| **FE-UT-100** | 💥<br>Failure | `handleFormSubmission` | Signin Comp - Invalid Input: Empty Fields | `Signin.jsx` | Mock: `login()` resolves `{authenticated:false}` | Any credentials | Toast error with server message | `data.message` displayed |
+| **FE-UT-101** | 💥<br>Failure | `handleFormSubmission` | Signin Comp - Failure: Invalid Credentials | `Signin.jsx` | Mock: `login()` rejects | Any credentials | Toast error: API error message | `err.response?.data?.message` fallback |
+| **FE-UT-102** | ✅<br>UI | `handleInputChange` | Signin Comp - Failure: Network Error | `Signin.jsx` | N/A | Type in username field | `formData.username` updated | Controlled inputs |
+| **FE-UT-103** | ✅<br>UI | Render | Signin Comp - Edge Case: authenticated payload false | `Signin.jsx` | Component rendered | Click "Forgot Password?" | Navigates to `/forgot-password` | `<Link to="/forgot-password">` |
+| **FE-UT-104** | ✅<br>UI | Render | Signin Comp - State update: Input fields | `Signin.jsx` | Component rendered | Click "Create Account" | Navigates to `/signup` | `<Link to="/signup">` |
+| **FE-UT-105** | ✅<br>UI | Render | Signin Comp - Redirect logic | `Signin.jsx` | Component rendered | Click "Go back" | Navigates to `/` | `navigate("/")` |
 
 ### Auth Pages — `Signup.jsx`
 | Test Case ID | Legend | Function | Test Scenario / Description | File(s) | Preconditions | Input Data | Expected Result | Remarks |
 | :--- | :---: | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **FE-UT-106** | ✅<br>Happy Path | `handleFormSubmission` | Valid data → toast success + redirect | `Signup.jsx` | Mock: `signup()` resolves | Valid form data | Toast success, redirect to `/login` after 1500ms | `setTimeout` + `setRedirect` |
-| **FE-UT-107** | 🚫<br>Invalid Input | `handleFormSubmission` | Bad email format → client-side toast error | `Signup.jsx` | N/A | `email: "notanemail"` | Toast error: "valid email" | `emailRegex` test fails |
-| **FE-UT-108** | 🚫<br>Invalid Input | `handleFormSubmission` | Short password → client-side toast error | `Signup.jsx` | N/A | `password: "abc"` | Toast error: "at least 8 characters" | `passwordRegex` test fails |
-| **FE-UT-109** | 🚫<br>Invalid Input | `handleFormSubmission` | Passwords don't match → toast error | `Signup.jsx` | N/A | `password !== confirmPassword` | Toast error: "Passwords do not match" | Client-side check |
-| **FE-UT-110** | 💥<br>Failure | `handleFormSubmission` | API rejects signup → catch toast | `Signup.jsx` | Mock: `signup()` rejects | Any valid form | Toast error: server message | `err.response?.data?.message` fallback |
-| **FE-UT-111** | ✅<br>UI | `handleInputChange` | Username warning toast shown once | `Signup.jsx` | First character typed in username | Type "a" in username field | Warning toast with ⚠️ shown | `usernameWarnedRef` ensures one-time |
-| **FE-UT-112** | ✅<br>UI | `handleInputChange` | Password tooltip appears when < 8 chars | `Signup.jsx` | N/A | `password: "abc"` | "Min 8 Chars" text visible | `passwordTooltip` state |
-| **FE-UT-113** | ✅<br>UI | `handleInputChange` | Password tooltip disappears at 8+ chars | `Signup.jsx` | N/A | `password: "abcdefgh"` | Tooltip hidden | `passwordTooltip` set to false |
+| **FE-UT-106** | ✅<br>Happy Path | `handleFormSubmission` | Signup Comp - Happy Path: Successful Signup | `Signup.jsx` | Mock: `signup()` resolves | Valid form data | Toast success, redirect to `/login` after 1500ms | `setTimeout` + `setRedirect` |
+| **FE-UT-107** | 🚫<br>Invalid Input | `handleFormSubmission` | Signup Comp - Invalid Input: Empty Fields | `Signup.jsx` | N/A | `email: "notanemail"` | Toast error: "valid email" | `emailRegex` test fails |
+| **FE-UT-108** | 🚫<br>Invalid Input | `handleFormSubmission` | Signup Comp - Invalid Input: Invalid Email | `Signup.jsx` | N/A | `password: "abc"` | Toast error: "at least 8 characters" | `passwordRegex` test fails |
+| **FE-UT-109** | 🚫<br>Invalid Input | `handleFormSubmission` | Signup Comp - Invalid Input: Weak Password | `Signup.jsx` | N/A | `confirmPassword: "123"` | Toast error: "Passwords do not match" | Passwords match validation |
+| **FE-UT-110** | 💥<br>Failure | `handleFormSubmission` | Signup Comp - Invalid Input: Passwords mismatch | `Signup.jsx` | Mock: `signup()` rejects | Any input | Toast error: API error message | API failure fallback |
+| **FE-UT-111** | 🧩<br>Edge Case | `handleInputChange` | Signup Comp - Failure: Duplicate Username | `Signup.jsx` | N/A | Username contains space | Warning toast shown (only once) | Regex `/\s/` on username |
+| **FE-UT-112** | ✅<br>UI | `handleInputChange` | Signup Comp - Failure: Network Error | `Signup.jsx` | Focus password | `<8 chars` | Tooltip class `show` | Validation UI aid |
+| **FE-UT-113** | ✅<br>UI | `handleInputChange` | Signup Comp - State update: Phone input digits only | `Signup.jsx` | Focus password | `8+ chars` | Tooltip class removed | Validation UI aid |
 
 ### Auth Pages — `PassForgot.jsx`
 | Test Case ID | Legend | Function | Test Scenario / Description | File(s) | Preconditions | Input Data | Expected Result | Remarks |
@@ -188,6 +188,10 @@ The testing methodology focuses on **component reliability, state management int
 | **FE-UT-128** | ✅<br>UI | `HomePage` | Dashboard cards link correctly | `Home.jsx` | Rendered | N/A | Cards link to `/new-entry`, `/account` | `<DashboardCard>` `to` prop |
 | **FE-UT-129** | ✅<br>Happy Path | `handleLogout` | Logout success → clears state, navigates | `Home.jsx` | Mock: `logout()` returns `true` | Click Logout | localStorage cleared, cookie cleared, navigate `/` | Full logout flow |
 | **FE-UT-130** | 💥<br>Failure | `handleLogout` | Logout fails → toast error | `Home.jsx` | Mock: `logout()` returns `false` | Click Logout | Toast error: "encountered an error" | Failure path |
+| **FE-UT-237** | ✅<br>Happy Path | `Home` | Links navigation (/new-entry) | `Home.jsx` | N/A | Click link | Navigates to /new-entry | Added from impl |
+| **FE-UT-238** | ✅<br>Happy Path | `Home` | Links navigation (/account) | `Home.jsx` | N/A | Click link | Navigates to /account | Added from impl |
+| **FE-UT-239** | 🧩<br>Edge Case | `Home` | Name missing from API | `Home.jsx` | API resolves without name | N/A | "Welcome to your workspace" (no name) | Added from impl |
+| **FE-UT-240** | ✅<br>Happy Path | `Home` | State update: data fetching only | `Home.jsx` | Component mounted | N/A | Renders correctly | Added from impl |
 
 ### Search — `SearchBar.jsx`
 | Test Case ID | Legend | Function | Test Scenario / Description | File(s) | Preconditions | Input Data | Expected Result | Remarks |
@@ -245,34 +249,85 @@ The testing methodology focuses on **component reliability, state management int
 | **FE-UT-169** | 🧩<br>Edge Case | `PatientView` | No versions → "No previous versions" | `PatientProfilePage.jsx` | `versions: []` | Click Versions button | "No previous versions available." shown | Empty state |
 | **FE-UT-170** | ✅<br>UI | `PatientView` | Edit button navigates to `/update/:name` | `PatientProfilePage.jsx` | Patient loaded | Click Edit | Navigate to `/update/Alice` with state | `navigate(url, {state: data})` |
 | **FE-UT-171** | 🧩<br>Edge Case | `PatientView` | No patient data → fallback message | `PatientProfilePage.jsx` | `patientData: null` | N/A | "No patient data found" shown | Null guard |
+| **FE-UT-250** | ✅<br>Happy Path | `Patient` | Vitals rendering | `PatientProfilePage.jsx` | API resolves | N/A | Renders vitals | Added from impl |
+| **FE-UT-251** | ✅<br>Happy Path | `Patient` | Render Clinical Diagnosis | `PatientProfilePage.jsx` | API resolves | N/A | Renders diagnosis | Added from impl |
+| **FE-UT-252** | ✅<br>Happy Path | `Patient` | Render Investigations | `PatientProfilePage.jsx` | API resolves | N/A | Renders investigations | Added from impl |
+| **FE-UT-253** | ✅<br>Happy Path | `Patient` | Render Treatments | `PatientProfilePage.jsx` | API resolves | N/A | Renders treatments | Added from impl |
+| **FE-UT-254** | ✅<br>Happy Path | `handlePrint` | Print Success | `PatientProfilePage.jsx` | Data loaded | Click Print | Prints | Added from impl |
+| **FE-UT-255** | 💥<br>Failure | `handlePrint` | Print Failure (Missing Doctor Data) | `PatientProfilePage.jsx` | Missing doctor info | Click Print | Fails | Added from impl |
+| **FE-UT-256** | ✅<br>Happy Path | `handleEdit` | Navigates to Edit Page | `PatientProfilePage.jsx` | Data loaded | Click Edit | Navigates | Added from impl |
+| **FE-UT-257** | ✅<br>Happy Path | `handleDelete` | Delete Patient Initial | `PatientProfilePage.jsx` | Data loaded | Click Delete | Shows prompt | Added from impl |
+| **FE-UT-258** | ✅<br>Happy Path | `handleDelete` | Confirm Delete Success | `PatientProfilePage.jsx` | API resolves | Confirm delete | Deletes | Added from impl |
+| **FE-UT-259** | 💥<br>Failure | `handleDelete` | Delete Patient Error | `PatientProfilePage.jsx` | API rejects | Confirm delete | Fails | Added from impl |
+| **FE-UT-260** | ✅<br>Happy Path | `handleDelete` | Cancel Delete | `PatientProfilePage.jsx` | Data loaded | Cancel delete | Closes prompt | Added from impl |
+| **FE-UT-261** | ✅<br>Happy Path | `handleDone` | Done Button Navigation | `PatientProfilePage.jsx` | Data loaded | Click Done | Navigates to Home | Added from impl |
 
 ### Patient Components — `PatientForm.jsx`
 | Test Case ID | Legend | Function | Test Scenario / Description | File(s) | Preconditions | Input Data | Expected Result | Remarks |
 | :--- | :---: | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **FE-UT-172** | ✅<br>Happy Path | `PatientForm` | Create mode renders correctly | `PatientForm.jsx` | `mode="create"` | N/A | Title: "New Patient Entry", dark header | Mode-specific UI |
-| **FE-UT-173** | ✅<br>Happy Path | `PatientForm` | Edit mode renders correctly | `PatientForm.jsx` | `mode="edit"`, `initialData` provided | N/A | Title: "Edit Patient Record", blue header | Mode-specific UI |
-| **FE-UT-174** | ✅<br>UI | `PatientForm` | Submit button disabled when form invalid (create) | `PatientForm.jsx` | `mode="create"`, form empty | N/A | Submit button has `disabled` class | `!state.isFormValid` |
-| **FE-UT-175** | ✅<br>UI | `PatientForm` | Submit button disabled when no changes (edit) | `PatientForm.jsx` | `mode="edit"`, no changes | N/A | Submit button has `disabled` class | `!state.hasChanges` |
-| **FE-UT-176** | ✅<br>UI | `PatientForm` | Cancel navigates to `/home` | `PatientForm.jsx` | Any mode | Click "Cancel" | Navigate to `/home` | `navigate("/home")` |
-| **FE-UT-177** | ✅<br>UI | `PatientForm` | All sections rendered | `PatientForm.jsx` | Any mode | N/A | GeneralInfo, Vitals, MedicalHistory, ClinicalFindings, TreatmentPlan, Investigations visible | Section composition |
-| **FE-UT-178** | ✅<br>Happy Path | `PatientForm` | Form submit triggers `actions.handleSubmit` | `PatientForm.jsx` | Valid form | Submit form | `onSubmit` callback invoked | Form event wiring |
-| **FE-UT-179** | ✅<br>UI | `PatientForm` | Create mode submit label | `PatientForm.jsx` | `mode="create"` | N/A | Button text: "Save Patient Record" | Mode-specific label |
-| **FE-UT-180** | ✅<br>UI | `PatientForm` | Edit mode submit label | `PatientForm.jsx` | `mode="edit"` | N/A | Button text: "Save Changes" | Mode-specific label |
-| **FE-UT-181** | ✅<br>UI | `PatientForm` | Create header styling | `PatientForm.jsx` | `mode="create"` | N/A | Header has `bg-slate-900` class | Mode-specific styling |
-| **FE-UT-182** | ✅<br>UI | `PatientForm` | Edit header styling | `PatientForm.jsx` | `mode="edit"` | N/A | Header has `bg-blue-600` class | Mode-specific styling |
-| **FE-UT-183** | 🧩<br>Edge Case | `PatientForm` | Default `initialData` is `{}` | `PatientForm.jsx` | No `initialData` prop | N/A | Form renders without errors | Default prop handling |
+| **FE-UT-180** | ✅<br>UI | PatientForm | PatientForm - UI: Edit mode submit label | PatientForm.test.jsx | N/A | N/A | Success | Added from impl |
+| **FE-UT-181** | ✅<br>UI | PatientForm | PatientForm - UI: Create header styling | PatientForm.test.jsx | N/A | N/A | Success | Added from impl |
+| **FE-UT-182** | ✅<br>UI | PatientForm | PatientForm - UI: Edit header styling | PatientForm.test.jsx | N/A | N/A | Success | Added from impl |
+| **FE-UT-183** | ✅<br>UI | PatientForm | PatientForm - Edge Case: Default initialData is {} | PatientForm.test.jsx | N/A | N/A | Success | Added from impl |
+| **FE-UT-200** | ✅<br>UI | PatientForm | FormGroup - UI: Renders label with required asterisk | PatientFormSections.test.jsx | N/A | N/A | Success | Added from impl |
+| **FE-UT-201** | ✅<br>UI | PatientForm | FormGroup - UI: Renders label without asterisk when not required | PatientFormSections.test.jsx | N/A | N/A | Success | Added from impl |
+| **FE-UT-202** | ✅<br>UI | PatientForm | GeneralInfo - UI: All required input fields rendered | PatientFormSections.test.jsx | N/A | N/A | Success | Added from impl |
+| **FE-UT-203** | ✅<br>UI | PatientForm | GeneralInfo - UI: Phone input enforces numeric-only via onInput | PatientFormSections.test.jsx | N/A | N/A | Success | Added from impl |
+| **FE-UT-204** | ✅<br>UI | PatientForm | Vitals - UI: All 4 vital fields rendered | PatientFormSections.test.jsx | N/A | N/A | Success | Added from impl |
+| **FE-UT-205** | ✅<br>UI | PatientForm | Vitals - UI: "Only recorded values will be saved" hint visible | PatientFormSections.test.jsx | N/A | N/A | Success | Added from impl |
+| **FE-UT-206** | ✅<br>UI | PatientForm | MedicalHistory - UI: Comorbidity buttons rendered for all options | PatientFormSections.test.jsx | N/A | N/A | Success | Added from impl |
+| **FE-UT-207** | ✅<br>UI | PatientForm | MedicalHistory - UI: Selected comorbidity has active class | PatientFormSections.test.jsx | N/A | N/A | Success | Added from impl |
+| **FE-UT-208** | ✅<br>UI | PatientForm | MedicalHistory - UI: "Others" selected -> custom input section visible | PatientFormSections.test.jsx | N/A | N/A | Success | Added from impl |
+| **FE-UT-209** | ✅<br>UI | PatientForm | MedicalHistory - UI: "None" selected -> italic message shown | PatientFormSections.test.jsx | N/A | N/A | Success | Added from impl |
+| **FE-UT-210** | ✅<br>UI | PatientForm | MedicalHistory - UI: Allergy "yes" -> textarea appears | PatientFormSections.test.jsx | N/A | N/A | Success | Added from impl |
+| **FE-UT-211** | ✅<br>UI | PatientForm | MedicalHistory - UI: Allergy "no" -> textarea hidden | PatientFormSections.test.jsx | N/A | N/A | Success | Added from impl |
+| **FE-UT-212** | ✅<br>UI | PatientForm | MedicalHistory - UI: Custom comorbidity remove button shown | PatientFormSections.test.jsx | N/A | N/A | Success | Added from impl |
+| **FE-UT-213** | ✅<br>UI | PatientForm | ClinicalFindings - UI: All 3 textareas rendered | PatientFormSections.test.jsx | N/A | N/A | Success | Added from impl |
+| **FE-UT-214** | ✅<br>UI | PatientForm | MedTypeDropdown - UI: Renders selected type abbreviation | PatientFormDetails.test.jsx | N/A | N/A | Success | Added from impl |
+| **FE-UT-215** | ✅<br>UI | PatientForm | MedTypeDropdown - UI: Click opens dropdown with all types | PatientFormDetails.test.jsx | N/A | N/A | Success | Added from impl |
+| **FE-UT-216** | ✅<br>UI | PatientForm | MedTypeDropdown - UI: Selecting type calls onChange and closes | PatientFormDetails.test.jsx | N/A | N/A | Success | Added from impl |
+| **FE-UT-217** | ✅<br>UI | PatientForm | MedTypeDropdown - Edge Case: Click outside closes dropdown | PatientFormDetails.test.jsx | N/A | N/A | Success | Added from impl |
+| **FE-UT-218** | ✅<br>UI | PatientForm | TreatmentPlan - UI: "Medicines" toggle shows medicine cards | PatientFormDetails.test.jsx | N/A | N/A | Success | Added from impl |
+| **FE-UT-219** | ✅<br>UI | PatientForm | TreatmentPlan - UI: "Notes" toggle shows textarea | PatientFormDetails.test.jsx | N/A | N/A | Success | Added from impl |
+| **FE-UT-220** | ✅<br>UI | PatientForm | TreatmentPlan - UI: Medicine card has all fields | PatientFormDetails.test.jsx | N/A | N/A | Success | Added from impl |
+| **FE-UT-221** | ✅<br>UI | PatientForm | TreatmentPlan - UI: Schedule buttons toggle active class | PatientFormDetails.test.jsx | N/A | N/A | Success | Added from impl |
+| **FE-UT-222** | ✅<br>UI | PatientForm | TreatmentPlan - UI: Remove medicine button calls removeMedicine | PatientFormDetails.test.jsx | N/A | N/A | Success | Added from impl |
+| **FE-UT-223** | ✅<br>UI | PatientForm | TreatmentPlan - UI: "+ Add Medication" button calls addMedicine | PatientFormDetails.test.jsx | N/A | N/A | Success | Added from impl |
+| **FE-UT-224** | ✅<br>UI | PatientForm | TreatmentPlan - UI: Dose unit dropdown has all options | PatientFormDetails.test.jsx | N/A | N/A | Success | Added from impl |
+| **FE-UT-225** | ✅<br>UI | PatientForm | Investigations - UI: All investigation option buttons rendered | PatientFormDetails.test.jsx | N/A | N/A | Success | Added from impl |
+| **FE-UT-226** | ✅<br>UI | PatientForm | Investigations - UI: Selected investigation has active class | PatientFormDetails.test.jsx | N/A | N/A | Success | Added from impl |
+| **FE-UT-227** | ✅<br>UI | PatientForm | Investigations - UI: MRI selected -> region input section shown | PatientFormDetails.test.jsx | N/A | N/A | Success | Added from impl |
+| **FE-UT-228** | ✅<br>UI | PatientForm | Investigations - UI: CT selected -> region + contrast section shown | PatientFormDetails.test.jsx | N/A | N/A | Success | Added from impl |
+| **FE-UT-229** | ✅<br>UI | PatientForm | Investigations - Edge Case: CT add button disabled when region or contrast empty | PatientFormDetails.test.jsx | N/A | N/A | Success | Added from impl |
+| **FE-UT-230** | ✅<br>UI | PatientForm | Investigations - UI: ENMG selected -> region input section shown | PatientFormDetails.test.jsx | N/A | N/A | Success | Added from impl |
+| **FE-UT-231** | ✅<br>UI | PatientForm | Investigations - UI: "Others" selected -> free-text input shown | PatientFormDetails.test.jsx | N/A | N/A | Success | Added from impl |
+| **FE-UT-232** | ✅<br>UI | PatientForm | Investigations - Edge Case: "Others" input in edit mode sets hasChanges | PatientFormDetails.test.jsx | N/A | N/A | Success | Added from impl |
+| **FE-UT-233** | ✅<br>UI | PatientForm | Investigations - UI: Selected investigations displayed as tags | PatientFormDetails.test.jsx | N/A | N/A | Success | Added from impl |
+| **FE-UT-234** | ✅<br>UI | PatientForm | Investigations - UI: MRI tag shows regions in parentheses | PatientFormDetails.test.jsx | N/A | N/A | Success | Added from impl |
+| **FE-UT-235** | ✅<br>UI | PatientForm | Investigations - UI: CT tag shows region with contrast info | PatientFormDetails.test.jsx | N/A | N/A | Success | Added from impl |
+| **FE-UT-236** | ✅<br>UI | PatientForm | Investigations - UI: Remove tag button filters out investigation | PatientFormDetails.test.jsx | N/A | N/A | Success | Added from impl |
+| **FE-UT-263** | ✅<br>UI | PatientForm | PatientForm - Happy Path: Vitals input recording | PatientForm.test.jsx | N/A | N/A | Success | Added from impl |
+| **FE-UT-264** | ✅<br>UI | PatientForm | PatientForm - Invalid Input: Form validation UI (pulse > 300) | PatientForm.test.jsx | N/A | N/A | Success | Added from impl |
+| **FE-UT-265** | ✅<br>UI | PatientForm | PatientForm - Invalid Input: Incomplete BP | PatientForm.test.jsx | N/A | N/A | Success | Added from impl |
+| **FE-UT-266** | ✅<br>UI | PatientForm | PatientForm - Failure: API Error Handling | PatientForm.test.jsx | N/A | N/A | Success | Added from impl |
 
 ### Patient Pages — `NewEntry.jsx`
 | Test Case ID | Legend | Function | Test Scenario / Description | File(s) | Preconditions | Input Data | Expected Result | Remarks |
 | :--- | :---: | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
 | **FE-UT-184** | ✅<br>Happy Path | `handleCreate` | Create success → toast + navigate | `NewEntry.jsx` | Mock: `createPatient()` resolves | Valid patient data | Toast success, navigate to `/patient/:name` | Full create flow |
 | **FE-UT-185** | 💥<br>Failure | `handleCreate` | Create fails → toast error | `NewEntry.jsx` | Mock: `createPatient()` rejects | Any data | Toast error: "error occurred while attempting to save" | Console.error + toast |
+| **FE-UT-241** | 🚫<br>Invalid Input | `NewEntry` | Form Validation: Empty fields submission | `NewEntry.jsx` | N/A | Submit empty | Fails | Added from impl |
+| **FE-UT-242** | 🚫<br>Invalid Input | `NewEntry` | Form Validation: Invalid phone/age | `NewEntry.jsx` | N/A | Submit invalid | Fails | Added from impl |
+| **FE-UT-243** | ✅<br>Happy Path | `NewEntry` | Successful form submission | `NewEntry.jsx` | API resolves | Valid data | Success | Added from impl |
+| **FE-UT-244** | 💥<br>Failure | `NewEntry` | Server Error on submit | `NewEntry.jsx` | API rejects | Valid data | Fails | Added from impl |
+| **FE-UT-245** | 🧩<br>Edge Case | `NewEntry` | Network timeout on submit | `NewEntry.jsx` | API timeout | Valid data | Fails | Added from impl |
 
 ### Patient Pages — `Update` component
 | Test Case ID | Legend | Function | Test Scenario / Description | File(s) | Preconditions | Input Data | Expected Result | Remarks |
 | :--- | :---: | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
 | **FE-UT-186** | ✅<br>Happy Path | `handleUpdate` | Update success → toast + navigate | `PatientProfilePage.jsx` | Mock: `updatePatient()` resolves; `location.state` has data | Updated patient data | Toast success, navigate to `/patient/:name` | Uses `submissionData.name` for URL |
 | **FE-UT-187** | 💥<br>Failure | `handleUpdate` | Update fails → toast error | `PatientProfilePage.jsx` | Mock: `updatePatient()` rejects | Any data | Toast error: "Failed to update information." | Error path |
+| **FE-UT-262** | ✅<br>Happy Path | `Update` | Render PatientForm | `PatientProfilePage.jsx` | Initial render | N/A | Renders PatientForm | Added from impl |
 
 ### Landing Page — `Main.jsx`
 | Test Case ID | Legend | Function | Test Scenario / Description | File(s) | Preconditions | Input Data | Expected Result | Remarks |
