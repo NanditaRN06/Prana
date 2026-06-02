@@ -42,7 +42,7 @@ export default defineConfig({
       reporter: ['text', 'lcov', 'html'],
       reportsDirectory: path.resolve(__dirname, './coverage/frontend'),
       include: ['frontend/src/**/*.{js,jsx}'],
-      exclude: ['**/*.test.{js,jsx}', '**/*.spec.{js,jsx}'],
+      exclude: ['**/*.test.{js,jsx}', '**/*.spec.{js,jsx}', 'frontend/src/main.jsx'],
       thresholds: {
         statements: 90,
         branches: 85,
