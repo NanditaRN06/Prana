@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { MEDICINE_TYPES, INVESTIGATION_OPTIONS } from "../utils/usePatientForm";
 import { SectionHeading, FormGroup } from "./PatientFormSections";
 
-const MedTypeDropdown = ({ value, onChange }) => {
+export const MedTypeDropdown = ({ value, onChange }) => {
     const [open, setOpen] = useState(false);
     const displayItem = MEDICINE_TYPES.find(t => t.val === value) || MEDICINE_TYPES[1];
 
