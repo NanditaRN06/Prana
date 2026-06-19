@@ -4,11 +4,14 @@ export default {
   moduleNameMapper: {
     '^@backend/(.*)$': '<rootDir>/backend/$1',
     '^mongoose$': '<rootDir>/backend/node_modules/mongoose',
+    '^jsonwebtoken$': '<rootDir>/backend/node_modules/jsonwebtoken',
+    '^nodemailer$': '<rootDir>/backend/node_modules/nodemailer',
   },
   rootDir: '..',
   roots: ['<rootDir>/tests', '<rootDir>/backend'],
-  globalSetup: '<rootDir>/tests/setup/globalSetup.js',
-  globalTeardown: '<rootDir>/tests/setup/globalTeardown.js',
+  globalSetup: '<rootDir>/tests/utils/setup/globalSetup.js',
+  globalTeardown: '<rootDir>/tests/utils/setup/globalTeardown.js',
+  setupFiles: ['<rootDir>/tests/utils/setup/jest.setup.js'],
   testMatch: [
     '<rootDir>/tests/unit/backend/**/*.test.js',
     '<rootDir>/tests/integration/backend/**/*.test.js',

@@ -4,12 +4,12 @@
   "description": "Test environment for Prana CMS",
   "type": "module",
   "scripts": {
-    "test:be": "cross-env MONGOMS_DOWNLOAD_DIR=./node_modules/.cache/mongodb-binaries NODE_OPTIONS=--experimental-vm-modules jest",
+    "test:be": "cross-env MONGOMS_DOWNLOAD_DIR=./node_modules/.cache/mongodb-binaries NODE_OPTIONS=--experimental-vm-modules JWT_SECRET=prana-test-secret-key-12345 jest --runInBand --forceExit",
     "test:be:unit": "npm run test:be -- --testPathPattern=tests/unit/backend",
-    "test:be:integration": "npm run test:be -- --testPathPattern=tests/integration/backend",
-    "test:be:e2e": "npm run test:be -- --testPathPattern=tests/e2e/backend",
-    "test:be:system": "npm run test:be -- --testPathPattern=tests/system/backend",
-    "test:be:coverage": "npm run test:be -- --coverage",
+    "test:be:integration": "npm run test:be -- --testPathPattern=tests/integration/backend --runInBand",
+    "test:be:e2e": "npm run test:be -- --testPathPattern=tests/e2e/backend --runInBand",
+    "test:be:system": "npm run test:be -- --testPathPattern=tests/system/backend --runInBand",
+    "test:be:coverage": "npm run test:be -- --coverage --runInBand",
 
     "test:fe": "vitest run",
     "test:fe:unit": "vitest run unit/frontend",

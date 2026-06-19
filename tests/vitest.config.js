@@ -15,6 +15,7 @@ export default defineConfig({
       'react-hot-toast': path.resolve(__dirname, './node_modules/react-hot-toast'),
       'recharts': path.resolve(__dirname, './node_modules/recharts'),
       '@vitest/coverage-v8': path.resolve(__dirname, './node_modules/@vitest/coverage-v8'),
+      'react-icons': path.resolve(__dirname, '../frontend/node_modules/react-icons'),
     },
   },
   server: {
@@ -35,7 +36,7 @@ export default defineConfig({
       'tests/e2e/frontend/**/*.{test,spec}.{js,jsx}',
       'tests/system/frontend/**/*.{test,spec}.{js,jsx}'
     ],
-    setupFiles: [path.resolve(__dirname, './setup/vitest-setup.js')],
+    setupFiles: [path.resolve(__dirname, './utils/setup/vitest-setup.js')],
     coverage: {
       all: true,
       provider: 'v8',
