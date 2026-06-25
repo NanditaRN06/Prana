@@ -8,6 +8,8 @@ package-lock.json
 *.log
 .env
 .env.*
+!.env.test
+!.env.example
 *.cache
 *.tmp
 *.bak
