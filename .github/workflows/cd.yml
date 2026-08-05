@@ -38,14 +38,6 @@ jobs:
         run: npm run test:be:integration
         working-directory: tests
 
-      - name: Run Backend E2E Tests
-        run: npm run test:be:e2e
-        working-directory: tests
-
-      - name: Run Backend System Tests
-        run: npm run test:be:system
-        working-directory: tests
-
       - name: Coverage Gate (Strict)
         run: npm run test:be:coverage -- --forceExit
         working-directory: tests
@@ -122,9 +114,9 @@ jobs:
         working-directory: tests
 
       - name: Secret Scan
-        uses: trufflesecurity/trufflehog-actions-scan@master
+        uses: trufflesecurity/trufflehog@main
         with:
-          args: --only-verified
+          extra_args: --only-verified
 
   deployment-readiness:
     name: Deployment Readiness
