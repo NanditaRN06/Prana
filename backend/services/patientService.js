@@ -35,10 +35,6 @@ exports.updatePatientEntry = async (patientId, userId, updatePayload) => {
         validateVitals(updatedData.vitals);
     }
 
-    if (updatedData.vitals) {
-        validateVitals(updatedData.vitals);
-    }
-
     const currentPatient = await Patient.findOne({ name: patientId, userId });
     if (!currentPatient) throw new Error("Patient record not found.");
 

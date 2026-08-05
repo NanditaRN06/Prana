@@ -9,27 +9,60 @@ Prana is a modern Clinical Management System designed with a focus on simplicity
 ## Project Structure
 ```text
 Prana/
+|-- .github/
+|   |-- workflows/             # ci/cd workflows
 |-- backend/
-|   |-- models/
-|   |-- apiControllers.js
-|   |-- apiRoutes.js
-|   |-- index.js
-|   |-- verifyUser.js
-|   |-- package.json
-|   |-- .env
-|-- frontend/
-|   |-- public/
+|   |-- controllers/           # contains logic for handling requests and responses
+|   |-- middlewares/           # contains middleware functions
+|   |-- models/                # contains database models
+|   |-- routes/                # contains API routes
+|   |-- services/              # contains business logic
+|   |-- templates/             # contains templates for email and other documents
+|   |-- validators/            # contains validation logic
+|   |-- eslint.config.js       # eslint configuration file
+|   |-- .env                   # environment variables
+|   |-- index.js               # entry point of the backend application
+|   |-- package.json           # package.json file
+-- docs/
+|   |-- tests/ 
+|   |   |-- frontend/          # contains frontend test documents
+|   |   |-- backend/           # contains backend test documents
+-- frontend/
+|   |-- public/                # public directory 
 |   |-- src/
-|   |   |-- components/
-|   |   |-- utils/
-|   |   |-- App.jsx
-|   |   |-- index.css
-|   |   |-- main.jsx
-|   |-- package.json
-|   |-- vite.config.js
-|-- Makefile
-|-- README.md
-|-- LICENSE
+|   |   |-- components/        # reusable components
+|   |   |-- layout/            # layout components
+|   |   |-- pages/
+|   |   |   |-- auth/          # authentication pages
+|   |   |   |-- dashboard/     # dashboard pages
+|   |   |   |-- admin/         # admin pages
+|   |   |-- services/          # services
+|   |   |-- utils/             # utility functions
+|   |   |-- App.jsx            # main application component
+|   |   |-- index.css          # global styles
+|   |   |-- main.jsx           # entry point of the frontend application
+|   |-- .env.development       # environment variables for development
+|   |-- .env.production        # environment variables for production
+|   |-- eslint.config.js       # eslint configuration file
+|   |-- index.html             # html template
+|   |-- package.json           # package.json file
+|   |-- postcss.config.js      # postcss configuration file
+|   |-- tailwind.config.js     # tailwind configuration file
+|   |-- vercel.json            # vercel configuration file
+|   |-- vite.config.js         # vite configuration file
+|-- tests/                     
+|   |-- e2e/                   # e2e tests
+|   |-- integration/           # integration tests
+|   |-- setup/                 # Setup for running tests
+|   |-- system/                # system tests
+|   |-- unit/                  # unit tests
+|   |-- .env.test              # environment variables for testing
+|   |-- jest.config.js         # jest configuration file
+|   |-- package.json           # package.json file
+|   |-- vitest.config.js       # vitest configuration file
+|-- .gitignore                 # gitignore file
+|-- LICENSE                    # license file
+|-- README.md                  # readme file
 ```
 
 ## Local System Running Steps
@@ -55,6 +88,15 @@ MONGODB_URI=<your-mongodb-uri>
 JWT_SECRET=<your-jwt-secret-string>
 EMAIL_USER=<your-email-address>
 EMAIL_PASS=<your-app-password>
+```
+
+For testing, inside the `tests/` directory, create a `.env.test` file and add the following configuration:
+```env
+NODE_ENV=test
+PORT=<port-number>
+JWT_SECRET=<your-jwt-secret>
+LOG_LEVEL=error
+MONGODB_URI=<your-mongodb-uri>
 ```
 
 ### 3. Install Dependencies

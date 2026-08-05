@@ -18,7 +18,8 @@ apiClient.interceptors.response.use(
         const status = error.response.status;
 
         // Session Expiry or Unauthorized Access
-        if (status === 401 && window.location.pathname !== '/login' && window.location.pathname !== '/') {
+        const authRoutes = ['/login', '/', '/signup', '/forgot-password', '/reset-password'];
+        if (status === 401 && !authRoutes.includes(window.location.pathname)) {
             window.localStorage.removeItem("isLoggedIn");
             toast.error("Your secure session has expired. Please log in again to continue.", { id: 'session-exp' });
             window.location.href = '/login';

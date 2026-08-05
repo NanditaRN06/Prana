@@ -31,7 +31,7 @@ export const requestPasswordReset = async (contact) => {
 };
 
 export const verifyPasswordReset = async (id, token) => {
-    const response = await apiClient.get(`/reset-password?id=${id}&token=${token}`);
+    const response = await apiClient.get(`/reset-password?id=${encodeURIComponent(id)}&token=${encodeURIComponent(token)}`);
     return response.data;
 };
 

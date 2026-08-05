@@ -8,7 +8,7 @@ const jwt = require('jsonwebtoken');
 router.get('/check-auth', (req, res) => {
     const token = req.cookies.token;
     if (!token) return res.status(401).json({ message: 'Not authenticated' });
-    jwt.verify(token, process.env.JWT_SECRET || "jwt_secret_key", (err) => {
+    jwt.verify(token, process.env.JWT_SECRET, (err) => {
         if (err) return res.status(401).json({ message: 'Invalid token' });
         res.status(200).json({ message: 'Authenticated' });
     });

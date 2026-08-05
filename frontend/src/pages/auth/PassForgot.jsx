@@ -85,9 +85,9 @@ export const ResetPassword = ({ id, token }) => {
                 setVerifying(false);
             })
             .catch(() => {
+                setVerifying(false);
                 toast.error("Security token is invalid or has expired.");
                 setTimeout(() => {
-                    setVerifying(false);
                     navigate("/forgot-password");
                 }, 2000);
             });
